@@ -1,15 +1,29 @@
 import React, {
   useState,
   useRef,
+  useEffect,
+  useLayoutEffect,
 } from 'react';
 import useDidMount from '../util/useDidMount';
-import { isObj } from '../util/checkType';
+import {
+  isObj,
+  isNum,
+} from '../util/checkType';
+
+const defaultDuration = 200;
 
 interface TransitusDuration {
-  appear: number;
-  enter: number;
-  leave: number;
+  enter: number; // enter过渡的时长
+  leave: number; // leave过渡的时长
 }
+
+interface TransitionStyles {
+  enter?: React.CSSProperties;
+  entering?: React.CSSProperties;
+  leave?: React.CSSProperties;
+  leaveing?: React.CSSProperties;
+}
+
 interface TransitusProps {
   duration?: number | TransitusDuration; // 动画的时间
   animation?: boolean; // 组件的显隐状态
@@ -18,6 +32,8 @@ interface TransitusProps {
   enter?: boolean; // 是否启用进入动画
   leave?: boolean; // 是否启用离开动画
   appear?: boolean; // 是否在首次挂载时使用enter动画
+  timingFunction?: string; // 动画函数
+  transitionStyles?: TransitionStyles;
 }
 
 enum STATUS {
@@ -30,16 +46,24 @@ enum STATUS {
 
 const Transitus: React.FC<TransitusProps> = (props) => {
   const {
-    duration = 200,
+    timingFunction = 'ease-in-out',
+    duration = defaultDuration,
     unmount = false,
     animation = false,
     enter = true,
     leave = true,
     appear = true,
     children,
+    transitionStyles = {
+      entering: { opacity: 1 },
+      enter: { opacity: 1 },
+      leaveing: { opacity: 0 },
+      leave: { opacity: 0 },
+    },
   } = props;
 
   const self = useRef(null);
+  const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
@@ -59,20 +83,57 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
     return initStatus;
   });
+  const [timeout] = useState<TransitusDuration>(() => {
+    let enter: number = defaultDuration;
+    let leave: number = defaultDuration;
+    if (isObj(duration)) {
+      enter = isNum(duration.enter) ? duration.enter : defaultDuration;
+      leave = isNum(duration.leave) ? duration.leave : defaultDuration;
+    }
+    if (isNum(duration)) {
+      enter = leave = duration;
+    }
+    return {
+      enter,
+      leave,
+    };
+  });
 
-  const handleEnter = (mount: boolean) => {
-  }
+  const handleEnter = () => {
+    // 不需要执行入场动画
+    if (!enter) {
+      setStatus(STATUS['ENTER']);
+    } else {
+      setStatus(STATUS['ENTERING']);
+    }
+  };
 
   const handleLeave = () => {
-  }
+    // 不需要执行出场动画
+    if (!leave) {
+      setStatus(STATUS['LEAVE']);
+    } else {
+      setStatus(STATUS['LEAVEING']);
+    }
+  };
+
+  const handleTransitionEnd = (
+    timeout: number,
+    callback: Function,
+  ) => {
+    if (isNum(timeout)) {
+      setTimeout(callback, timeout);
+    } else {
+      setTimeout(callback, 0);
+    }
+  };
 
   const updateStatus = (
-    mount: boolean,
     nextStatus: STATUS | null,
   ): void => {
     if (nextStatus) {
       if (nextStatus === STATUS['ENTERING']) {
-        handleEnter(mount);
+        handleEnter();
       } else {
         handleLeave();
       }
@@ -84,13 +145,68 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   };
 
   useDidMount(() => {
-    updateStatus(true, nextStatus.current);
+    updateStatus(nextStatus.current);
   });
+
+  useEffect(() => {
+    switch (status) {
+      case STATUS['ENTERING']:
+        handleTransitionEnd(timeout.enter, () => {
+          setStatus(STATUS['ENTER']);
+        });
+        break;
+      case STATUS['LEAVEING']:
+        handleTransitionEnd(timeout.leave, () => {
+          setStatus(STATUS['LEAVE']);
+        });
+        break;
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (!firstMount.current) {
+      let nextStatus = null;
+      if (animation) {
+        if (
+          status !== STATUS['ENTERING'] &&
+          status !== STATUS['ENTER']
+        ) {
+          nextStatus = STATUS['ENTERING'];
+        }
+      } else {
+        if (
+          status === STATUS['ENTERING'] ||
+          status === STATUS['ENTER']
+        ) {
+          nextStatus = STATUS['LEAVEING'];
+        }
+      }
+      updateStatus(nextStatus);
+    } else {
+      firstMount.current = false;
+    }
+  }, [animation]);
+
+  useLayoutEffect(() => {
+    return () => {
+      if (animation && status === STATUS['UNMOUNTED']) {
+        setStatus(STATUS['LEAVE']);
+      }
+    }
+  }, [animation])
+
+  if (status === STATUS['UNMOUNTED']) {
+    return null;
+  }
+
+  const styles = transitionStyles[status] || {};
 
   return React.cloneElement(React.Children.only(children), {
     style: {
+      transition: `${duration}ms ${timingFunction}`,
+      ...styles,
     },
-    ref: self
+    ref: self,
   })
 };
 
