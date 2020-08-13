@@ -185,15 +185,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     } else {
       firstMount.current = false;
     }
-  }, [animation]);
-
-  useLayoutEffect(() => {
-    return () => {
-      if (animation && status === STATUS['UNMOUNTED']) {
-        setStatus(STATUS['LEAVE']);
-      }
-    }
-  }, [animation])
+  }, [animation, status]);
 
   if (status === STATUS['UNMOUNTED']) {
     return null;
