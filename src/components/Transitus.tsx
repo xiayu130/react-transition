@@ -2,7 +2,6 @@ import React, {
   useState,
   useRef,
   useEffect,
-  useLayoutEffect,
 } from 'react';
 import useDidMount from '../util/useDidMount';
 import {
@@ -172,6 +171,11 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           status !== STATUS['ENTER']
         ) {
           nextStatus = STATUS['ENTERING'];
+        }
+        // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
+        if (status === STATUS['UNMOUNTED']) {
+          setStatus(STATUS['LEAVE']);
+          return;
         }
       } else {
         if (
