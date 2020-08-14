@@ -126,7 +126,9 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      setStatus(STATUS['ENTERING']);
+      handleDelayEnd(postpone.enterDelay, () => {
+        setStatus(STATUS['ENTERING']);
+      });
     }
   };
 
@@ -135,7 +137,9 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!leave) {
       setStatus(STATUS['LEAVE']);
     } else {
-      setStatus(STATUS['LEAVEING']);
+      handleDelayEnd(postpone.leaveDelay, () => {
+        setStatus(STATUS['LEAVEING']);
+      });
     }
   };
 
@@ -149,6 +153,17 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       setTimeout(callback, 0);
     }
   };
+
+  const handleDelayEnd = (
+    delay: number,
+    callback: Function,
+  ) => {
+    if (isNum(delay)) {
+      setTimeout(callback, delay);
+    } else {
+      setTimeout(callback, 0);
+    }
+  }
 
   const updateStatus = (
     nextStatus: STATUS | null,
