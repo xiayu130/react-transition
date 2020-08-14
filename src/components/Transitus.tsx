@@ -10,10 +10,16 @@ import {
 } from '../util/checkType';
 
 const defaultDuration = 200;
+const defaultDelay = 0;
 
 interface TransitusDuration {
   enter: number; // enter过渡的时长
   leave: number; // leave过渡的时长
+}
+
+interface TransitusDelay {
+  enterDelay: number; // enter动画开始前的延迟
+  leaveDelay: number; // leave动画开始前的延迟
 }
 
 interface TransitionStyles {
@@ -25,6 +31,7 @@ interface TransitionStyles {
 
 interface TransitusProps {
   duration?: number | TransitusDuration; // 动画的时间
+  delay?: number | TransitusDelay; // 动画开启前的延迟时间
   animation?: boolean; // 组件的显隐状态
   children: React.ReactElement;
   unmount?: boolean; // 是否在离开后卸载组件
@@ -47,6 +54,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const {
     timingFunction = 'ease-in-out',
     duration = defaultDuration,
+    delay = 0,
     unmount = false,
     animation = false,
     enter = true,
@@ -97,6 +105,21 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leave,
     };
   });
+  const [postpone] = useState<TransitusDelay>(() => {
+    let enterDelay: number = defaultDelay;
+    let leaveDelay: number = defaultDelay;
+    if (isObj(delay)) {
+      enterDelay = isNum(delay.enterDelay) ? delay.enterDelay : defaultDuration;
+      leaveDelay = isNum(delay.leaveDelay) ? delay.leaveDelay : defaultDuration;
+    }
+    if (isNum(delay)) {
+      enterDelay = leaveDelay = delay;
+    }
+    return {
+      enterDelay,
+      leaveDelay,
+    };
+  })
 
   const handleEnter = () => {
     // 不需要执行入场动画
