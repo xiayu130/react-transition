@@ -39,7 +39,8 @@ interface TransitusProps {
   leave?: boolean; // 是否启用离开动画
   appear?: boolean; // 是否在首次挂载时使用enter动画
   timingFunction?: string; // 动画函数
-  transitionStyles?: TransitionStyles;
+  transitionStyles?: TransitionStyles; // 样式
+  ID?: number;
 }
 
 enum STATUS {
@@ -67,6 +68,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leaveing: { opacity: 0 },
       leave: { opacity: 0 },
     },
+    ID,
   } = props;
 
   const self = useRef(null);
@@ -175,6 +177,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         handleLeave();
       }
     } else {
+      // 如果已经是LEAVE状态了，并且unmount设置为true，更新状态为UNMOUNTED
       if (unmount && status === STATUS['LEAVE']) {
         setStatus(STATUS['UNMOUNTED']);
       }
