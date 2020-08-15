@@ -29,7 +29,7 @@ interface TransitionStyles {
   leaveing?: React.CSSProperties;
 }
 
-interface TransitusProps {
+export interface TransitusProps {
   duration?: number | TransitusDuration; // 动画的时间
   delay?: number | TransitusDelay; // 动画开启前的延迟时间
   animation?: boolean; // 组件的显隐状态
@@ -40,7 +40,7 @@ interface TransitusProps {
   appear?: boolean; // 是否在首次挂载时使用enter动画
   timingFunction?: string; // 动画函数
   transitionStyles?: TransitionStyles; // 样式
-  ID?: number;
+  ID?: string;
 }
 
 enum STATUS {
