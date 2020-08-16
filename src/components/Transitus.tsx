@@ -11,7 +11,6 @@ import {
   isNum,
   isUnd,
   isFunc,
-  isNull,
 } from '../util/checkType';
 import { TransitusContext } from './TransitusGroup';
 
@@ -60,10 +59,10 @@ enum STATUS {
 const Transitus: React.FC<TransitusProps> = (props) => {
   const {
     timingFunction = 'ease-in-out',
-    duration = defaultDuration,
-    delay = 0,
+    duration: _duration = defaultDuration,
+    delay: _delay = 0,
     unmount = false,
-    animation: play = false,
+    animation: _animation = false,
     enter = true,
     leave = true,
     appear = true,
@@ -77,9 +76,8 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     ID,
   } = props;
 
-  const [animation, setAnimation] = useState(play);
+  const [animation, setAnimation] = useState(_animation);
   const { register, animations } = useContext(TransitusContext);
-  const self = useRef(null);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
   const [status, setStatus] = useState<STATUS>(() => {
@@ -100,30 +98,30 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
     return initStatus;
   });
-  const [timeout] = useState<TransitusDuration>(() => {
+  const [duration] = useState<TransitusDuration>(() => {
     let enter: number = defaultDuration;
     let leave: number = defaultDuration;
-    if (isObj(duration)) {
-      enter = isNum(duration.enter) ? duration.enter : defaultDuration;
-      leave = isNum(duration.leave) ? duration.leave : defaultDuration;
+    if (isObj(_duration)) {
+      enter = isNum(_duration.enter) ? _duration.enter : defaultDuration;
+      leave = isNum(_duration.leave) ? _duration.leave : defaultDuration;
     }
-    if (isNum(duration)) {
-      enter = leave = duration;
+    if (isNum(_duration)) {
+      enter = leave = _duration;
     }
     return {
       enter,
       leave,
     };
   });
-  const [postpone, setPostpone] = useState<TransitusDelay>(() => {
+  const [delay, setDelay] = useState<TransitusDelay>(() => {
     let enterDelay: number = defaultDelay;
     let leaveDelay: number = defaultDelay;
-    if (isObj(delay)) {
-      enterDelay = isNum(delay.enterDelay) ? delay.enterDelay : defaultDuration;
-      leaveDelay = isNum(delay.leaveDelay) ? delay.leaveDelay : defaultDuration;
+    if (isObj(_delay)) {
+      enterDelay = isNum(_delay.enterDelay) ? _delay.enterDelay : defaultDuration;
+      leaveDelay = isNum(_delay.leaveDelay) ? _delay.leaveDelay : defaultDuration;
     }
-    if (isNum(delay)) {
-      enterDelay = leaveDelay = delay;
+    if (isNum(_delay)) {
+      enterDelay = leaveDelay = _delay;
     }
     return {
       enterDelay,
@@ -136,7 +134,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      handleTransitionTime(postpone.enterDelay, () => {
+      handleTransitionTime(delay.enterDelay, () => {
         setStatus(STATUS['ENTERING']);
       });
     }
@@ -147,7 +145,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!leave) {
       setStatus(STATUS['LEAVE']);
     } else {
-      handleTransitionTime(postpone.leaveDelay, () => {
+      handleTransitionTime(delay.leaveDelay, () => {
         setStatus(STATUS['LEAVEING']);
       });
     }
@@ -190,12 +188,12 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   useEffect(() => {
     switch (status) {
       case STATUS['ENTERING']:
-        handleTransitionTime(timeout.enter, () => {
+        handleTransitionTime(duration.enter, () => {
           setStatus(STATUS['ENTER']);
         });
         break;
       case STATUS['LEAVEING']:
-        handleTransitionTime(timeout.leave, () => {
+        handleTransitionTime(duration.leave, () => {
           setStatus(STATUS['LEAVE']);
         });
         break;
@@ -232,8 +230,8 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   }, [animation, status]);
 
   useEffect(() => {
-    setAnimation(play);
-  }, [play]);
+    setAnimation(_animation);
+  }, [_animation]);
 
   useEffect(() => {
     if (!isUnd(ID) && !isUnd(animations[ID])) {
@@ -242,7 +240,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         delay = defaultDelay,
       } = animations[ID];
       setAnimation(animation);
-      setPostpone({
+      setDelay({
         enterDelay: delay as number,
         leaveDelay: delay as number,
       });
@@ -253,14 +251,16 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     return null;
   }
 
-  const styles = transitionStyles[status] || {};
+  const statusStyles = transitionStyles[status] || {};
+  const transitionStyle = {
+    transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction}`,
+  };
 
   return React.cloneElement(React.Children.only(children), {
     style: {
-      transition: `all ${duration}ms ${timingFunction}`,
-      ...styles,
+      ...transitionStyle,
+      ...statusStyles,
     },
-    ref: self,
   })
 };
 
