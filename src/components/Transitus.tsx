@@ -80,6 +80,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const { register, animations } = useContext(TransitusContext);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
+  const timer = useRef(0);
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
     if (animation) {
@@ -155,12 +156,14 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     time: number,
     callback: Function,
   ) => {
+    let timer = 0;
     callback = isFunc(callback) ? callback : noop;
     if (isNum(time)) {
-      setTimeout(callback, time);
+      timer = setTimeout(callback, time);
     } else {
-      setTimeout(callback, 0);
+      timer = setTimeout(callback, 0);
     }
+    return timer;
   }
 
   const updateStatus = (
@@ -197,7 +200,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         }
         if (status === STATUS['ENTERING']) {
           // 动画完成后进入ENTER状态
-          handleTransitionTime(duration.enter, () => {
+          timer.current = handleTransitionTime(duration.enter, () => {
             setStatus(STATUS['ENTER']);
           });
           return;
@@ -216,7 +219,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         }
         if (status === STATUS['LEAVEING']) {
           // 动画完成后，进入LEAVE状态
-          handleTransitionTime(duration.leave, () => {
+          timer.current = handleTransitionTime(duration.leave, () => {
             setStatus(STATUS['LEAVE']);
           });
           return;
@@ -225,6 +228,9 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       updateStatus(nextStatus);
     } else {
       firstMount.current = false;
+    }
+    return () => {
+      clearTimeout(timer.current);
     }
   }, [animation, status]);
 
