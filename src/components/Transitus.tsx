@@ -186,21 +186,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   });
 
   useEffect(() => {
-    switch (status) {
-      case STATUS['ENTERING']:
-        handleTransitionTime(duration.enter, () => {
-          setStatus(STATUS['ENTER']);
-        });
-        break;
-      case STATUS['LEAVEING']:
-        handleTransitionTime(duration.leave, () => {
-          setStatus(STATUS['LEAVE']);
-        });
-        break;
-    }
-  }, [status]);
-
-  useEffect(() => {
     if (!firstMount.current) {
       let nextStatus = null;
       if (animation) {
@@ -209,6 +194,13 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           status !== STATUS['ENTER']
         ) {
           nextStatus = STATUS['ENTERING'];
+        }
+        if (status === STATUS['ENTERING']) {
+          // 动画完成后进入ENTER状态
+          handleTransitionTime(duration.enter, () => {
+            setStatus(STATUS['ENTER']);
+          });
+          return;
         }
         // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
         if (status === STATUS['UNMOUNTED']) {
@@ -221,6 +213,13 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           status === STATUS['ENTER']
         ) {
           nextStatus = STATUS['LEAVEING'];
+        }
+        if (status === STATUS['LEAVEING']) {
+          // 动画完成后，进入LEAVE状态
+          handleTransitionTime(duration.leave, () => {
+            setStatus(STATUS['LEAVE']);
+          });
+          return;
         }
       }
       updateStatus(nextStatus);
