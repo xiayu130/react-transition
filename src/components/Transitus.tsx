@@ -5,10 +5,13 @@ import React, {
   useContext,
 } from 'react';
 import useDidMount from '../util/useDidMount';
+import noop from '../util/noop';
 import {
   isObj,
   isNum,
   isUnd,
+  isFunc,
+  isNull,
 } from '../util/checkType';
 import { TransitusContext } from './TransitusGroup';
 
@@ -16,13 +19,13 @@ const defaultDuration = 200;
 const defaultDelay = 0;
 
 interface TransitusDuration {
-  enter: number; // enter过渡的时长
-  leave: number; // leave过渡的时长
+  enter: number;
+  leave: number;
 }
 
 export interface TransitusDelay {
-  enterDelay: number; // enter动画开始前的延迟
-  leaveDelay: number; // leave动画开始前的延迟
+  enterDelay: number;
+  leaveDelay: number;
 }
 
 interface TransitionStyles {
@@ -33,16 +36,16 @@ interface TransitionStyles {
 }
 
 export interface TransitusProps {
-  duration?: number | TransitusDuration; // 动画的时间
+  duration?: number | TransitusDuration; // 动画持续时间
   delay?: number | TransitusDelay; // 动画开启前的延迟时间
-  animation?: boolean; // 组件的显隐状态
+  animation?: boolean; // 动画的开关
   children: React.ReactElement;
-  unmount?: boolean; // 是否在离开后卸载组件
+  unmount?: boolean; // 是否在离开后销毁DOM
   enter?: boolean; // 是否启用进入动画
   leave?: boolean; // 是否启用离开动画
   appear?: boolean; // 是否在首次挂载时使用enter动画
-  timingFunction?: string; // 动画函数
-  transitionStyles?: TransitionStyles; // 样式
+  timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
+  transitionStyles?: TransitionStyles; // 过渡的样式
   ID?: string;
 }
 
@@ -133,7 +136,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      handleDelayEnd(postpone.enterDelay, () => {
+      handleTransitionTime(postpone.enterDelay, () => {
         setStatus(STATUS['ENTERING']);
       });
     }
@@ -144,29 +147,19 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!leave) {
       setStatus(STATUS['LEAVE']);
     } else {
-      handleDelayEnd(postpone.leaveDelay, () => {
+      handleTransitionTime(postpone.leaveDelay, () => {
         setStatus(STATUS['LEAVEING']);
       });
     }
   };
 
-  const handleTransitionEnd = (
-    timeout: number,
+  const handleTransitionTime = (
+    time: number,
     callback: Function,
   ) => {
-    if (isNum(timeout)) {
-      setTimeout(callback, timeout);
-    } else {
-      setTimeout(callback, 0);
-    }
-  };
-
-  const handleDelayEnd = (
-    delay: number,
-    callback: Function,
-  ) => {
-    if (isNum(delay)) {
-      setTimeout(callback, delay);
+    callback = isFunc(callback) ? callback : noop;
+    if (isNum(time)) {
+      setTimeout(callback, time);
     } else {
       setTimeout(callback, 0);
     }
@@ -197,12 +190,12 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   useEffect(() => {
     switch (status) {
       case STATUS['ENTERING']:
-        handleTransitionEnd(timeout.enter, () => {
+        handleTransitionTime(timeout.enter, () => {
           setStatus(STATUS['ENTER']);
         });
         break;
       case STATUS['LEAVEING']:
-        handleTransitionEnd(timeout.leave, () => {
+        handleTransitionTime(timeout.leave, () => {
           setStatus(STATUS['LEAVE']);
         });
         break;
@@ -264,7 +257,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
 
   return React.cloneElement(React.Children.only(children), {
     style: {
-      transition: `${duration}ms ${timingFunction}`,
+      transition: `all ${duration}ms ${timingFunction}`,
       ...styles,
     },
     ref: self,
