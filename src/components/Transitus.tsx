@@ -2,24 +2,25 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useContext,
 } from 'react';
 import useDidMount from '../util/useDidMount';
+import noop from '../util/noop';
 import {
   isObj,
   isNum,
+  isUnd,
+  isFunc,
 } from '../util/checkType';
+import { TransitusContext } from './TransitusGroup';
+import { v4 as uuid } from 'uuid';
 
 const defaultDuration = 200;
 const defaultDelay = 0;
 
 interface TransitusDuration {
-  enter: number; // enter过渡的时长
-  leave: number; // leave过渡的时长
-}
-
-interface TransitusDelay {
-  enterDelay: number; // enter动画开始前的延迟
-  leaveDelay: number; // leave动画开始前的延迟
+  enter: number;
+  leave: number;
 }
 
 interface TransitionStyles {
@@ -30,17 +31,16 @@ interface TransitionStyles {
 }
 
 export interface TransitusProps {
-  duration?: number | TransitusDuration; // 动画的时间
-  delay?: number | TransitusDelay; // 动画开启前的延迟时间
-  animation?: boolean; // 组件的显隐状态
+  duration?: number | TransitusDuration; // 动画持续时间
+  delay?: number; // 动画开启前的延迟时间
+  animation?: boolean; // 动画的开关
   children: React.ReactElement;
-  unmount?: boolean; // 是否在离开后卸载组件
+  unmount?: boolean; // 是否在离开后销毁DOM
   enter?: boolean; // 是否启用进入动画
   leave?: boolean; // 是否启用离开动画
   appear?: boolean; // 是否在首次挂载时使用enter动画
-  timingFunction?: string; // 动画函数
-  transitionStyles?: TransitionStyles; // 样式
-  ID?: string;
+  timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
+  transitionStyles?: TransitionStyles; // 过渡的样式
 }
 
 enum STATUS {
@@ -54,10 +54,10 @@ enum STATUS {
 const Transitus: React.FC<TransitusProps> = (props) => {
   const {
     timingFunction = 'ease-in-out',
-    duration = defaultDuration,
-    delay = 0,
+    duration: _duration = defaultDuration,
+    delay: _delay = 0,
     unmount = false,
-    animation = false,
+    animation: _animation = false,
     enter = true,
     leave = true,
     appear = true,
@@ -68,12 +68,15 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leaveing: { opacity: 0 },
       leave: { opacity: 0 },
     },
-    ID,
   } = props;
 
-  const self = useRef(null);
+  const { register, animations } = useContext(TransitusContext);
+  const [animation, setAnimation] = useState(_animation);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
+  const prevStatus = useRef<null | STATUS>(null);
+  const timer = useRef(0);
+  const ID = useRef(uuid());
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
     if (animation) {
@@ -92,45 +95,37 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
     return initStatus;
   });
-  const [timeout] = useState<TransitusDuration>(() => {
+  const [duration] = useState<TransitusDuration>(() => {
     let enter: number = defaultDuration;
     let leave: number = defaultDuration;
-    if (isObj(duration)) {
-      enter = isNum(duration.enter) ? duration.enter : defaultDuration;
-      leave = isNum(duration.leave) ? duration.leave : defaultDuration;
+    if (isObj(_duration)) {
+      enter = isNum(_duration.enter) ? _duration.enter : defaultDuration;
+      leave = isNum(_duration.leave) ? _duration.leave : defaultDuration;
     }
-    if (isNum(duration)) {
-      enter = leave = duration;
+    if (isNum(_duration)) {
+      enter = leave = _duration;
     }
     return {
       enter,
       leave,
     };
   });
-  const [postpone] = useState<TransitusDelay>(() => {
-    let enterDelay: number = defaultDelay;
-    let leaveDelay: number = defaultDelay;
-    if (isObj(delay)) {
-      enterDelay = isNum(delay.enterDelay) ? delay.enterDelay : defaultDuration;
-      leaveDelay = isNum(delay.leaveDelay) ? delay.leaveDelay : defaultDuration;
-    }
-    if (isNum(delay)) {
-      enterDelay = leaveDelay = delay;
-    }
-    return {
-      enterDelay,
-      leaveDelay,
-    };
-  })
+  const [delay, setDelay] = useState<number>(_delay);
 
   const handleEnter = () => {
     // 不需要执行入场动画
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      handleDelayEnd(postpone.enterDelay, () => {
+      if (prevStatus.current === STATUS['UNMOUNTED']) {
+        // 需要等待dom渲染完毕
+        setTimeout(() => {
+          setStatus(STATUS['ENTERING']);
+          prevStatus.current = null;
+        }, 16);
+      } else {
         setStatus(STATUS['ENTERING']);
-      });
+      }
     }
   };
 
@@ -139,32 +134,22 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!leave) {
       setStatus(STATUS['LEAVE']);
     } else {
-      handleDelayEnd(postpone.leaveDelay, () => {
-        setStatus(STATUS['LEAVEING']);
-      });
+      setStatus(STATUS['LEAVEING']);
     }
   };
 
-  const handleTransitionEnd = (
-    timeout: number,
+  const handleTransitionTime = (
+    time: number,
     callback: Function,
   ) => {
-    if (isNum(timeout)) {
-      setTimeout(callback, timeout);
+    let timer = 0;
+    callback = isFunc(callback) ? callback : noop;
+    if (isNum(time)) {
+      timer = setTimeout(callback, time);
     } else {
-      setTimeout(callback, 0);
+      timer = setTimeout(callback, 0);
     }
-  };
-
-  const handleDelayEnd = (
-    delay: number,
-    callback: Function,
-  ) => {
-    if (isNum(delay)) {
-      setTimeout(callback, delay);
-    } else {
-      setTimeout(callback, 0);
-    }
+    return timer;
   }
 
   const updateStatus = (
@@ -185,23 +170,43 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   };
 
   useDidMount(() => {
+    register({ ...props, ID: ID.current });
     updateStatus(nextStatus.current);
   });
 
   useEffect(() => {
     switch (status) {
       case STATUS['ENTERING']:
-        handleTransitionEnd(timeout.enter, () => {
+        timer.current = handleTransitionTime(duration.enter, () => {
           setStatus(STATUS['ENTER']);
         });
         break;
       case STATUS['LEAVEING']:
-        handleTransitionEnd(timeout.leave, () => {
-          setStatus(STATUS['LEAVE']);
+        timer.current = handleTransitionTime(duration.leave, () => {
+          if (unmount) {
+            handleTransitionTime(delay, () => {
+              setStatus(STATUS['LEAVE']);
+            });
+          } else {
+            setStatus(STATUS['LEAVE']);
+          }
         });
         break;
     }
+    return () => {
+      clearTimeout(timer.current);
+    }
   }, [status]);
+
+  useEffect(() => {
+    if (animation) {
+      // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
+      if (status === STATUS['UNMOUNTED']) {
+        prevStatus.current = STATUS['UNMOUNTED'];
+        setStatus(STATUS['LEAVE']);
+      }
+    }
+  }, [animation]);
 
   useEffect(() => {
     if (!firstMount.current) {
@@ -212,11 +217,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           status !== STATUS['ENTER']
         ) {
           nextStatus = STATUS['ENTERING'];
-        }
-        // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
-        if (status === STATUS['UNMOUNTED']) {
-          setStatus(STATUS['LEAVE']);
-          return;
         }
       } else {
         if (
@@ -232,18 +232,35 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
   }, [animation, status]);
 
+  useEffect(() => {
+    setAnimation(_animation);
+  }, [_animation]);
+
+  useEffect(() => {
+    if (!isUnd(ID.current) && !isUnd(animations[ID.current])) {
+      const {
+        animation = false,
+        delay = defaultDelay,
+      } = animations[ID.current];
+      setAnimation(animation);
+      setDelay(delay);
+    }
+  }, [animations]);
+
   if (status === STATUS['UNMOUNTED']) {
     return null;
   }
 
-  const styles = transitionStyles[status] || {};
+  const statusStyles = transitionStyles[status] || {};
+  const transitionStyle = {
+    transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction} ${delay}ms`,
+  };
 
   return React.cloneElement(React.Children.only(children), {
     style: {
-      transition: `${duration}ms ${timingFunction}`,
-      ...styles,
+      ...transitionStyle,
+      ...statusStyles,
     },
-    ref: self,
   })
 };
 

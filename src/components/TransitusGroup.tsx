@@ -4,59 +4,62 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import { TransitusProps } from './Transitus';
+import {
+  TransitusProps,
+} from './Transitus';
 import {
   isUnd,
 } from '../util/checkType';
 
 interface TransitusGroup {
-  appear?: boolean; // 是否首次挂载时，使用入场动画
-  enter?: boolean; // 是否禁用入场动画
-  leave?: boolean; // 是否禁用出场动画
   animation?: boolean; // 是否开启动画
   interval?: number; // group间隔的时间
 }
 
-const TransitusContext = React.createContext({
-  animations: {},
-  register: (props: TransitusProps) => {},
+type TransitusPropsAndID = TransitusProps & {
+  ID: string;
+}
+type TransitusContextPropsKey = Exclude<keyof TransitusPropsAndID, 'delay' | 'animation'>;
+type TransitusContextProps = Omit<TransitusPropsAndID, TransitusContextPropsKey>;
+
+export const TransitusContext = React.createContext({
+  animations: {} as {
+    [key: string]: TransitusContextProps;
+  },
+  register: (props: TransitusPropsAndID): void => {},
 });
 
 const TransitusGroup: React.FC<TransitusGroup> = (props) => {
 
   const {
-    appear = false,
-    enter = false,
-    leave = false,
     animation = false,
     interval = 200,
     children,
   } = props;
 
   const [animations, setAnimations] = useState({});
-  const animationsRef = useRef<{
-    [key: string]: TransitusProps,
-  }>({});
-  const register = useCallback((props: TransitusProps) => {
+  const animationsRef = useRef<Map<string, TransitusPropsAndID>>(new Map());
+  const register = useCallback((props: TransitusPropsAndID) => {
     const { ID } = props;
     if (!isUnd(ID)) {
-      animationsRef.current[ID] = props;
+      animationsRef.current.set(ID, props)
     }
   }, []);
 
   useEffect(() => {
-    const transitus = Object.values(animationsRef.current) || [];
-    const counter = 0;
-    const animationsTemp = {};
+    let counter = 0;
+    const transitus = [...animationsRef.current.values()] || [];
+    const animationsTemp: {
+      [key: string]: TransitusContextProps;
+    } = {};
     (animation ? transitus : [...transitus.reverse()]).forEach((t) => {
       const { ID } = t;
       if (!isUnd(ID)) {
         animationsTemp[ID] = {
-          appear,
-          enter,
-          leave,
-          interval,
+          delay: counter * interval,
+          animation,
         };
+        counter += 1;
       }
     });
     setAnimations(animationsTemp);
