@@ -50,7 +50,7 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
       const { ID } = t;
       if (!isUnd(ID)) {
         animationsTemp[ID] = {
-          delay: interval + (counter * interval),
+          delay: counter * interval,
           animation,
         };
         counter += 1;
