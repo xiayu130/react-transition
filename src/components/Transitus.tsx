@@ -20,7 +20,7 @@ interface TransitusDuration {
   leave: number; // leave过渡的时长
 }
 
-interface TransitusDelay {
+export interface TransitusDelay {
   enterDelay: number; // enter动画开始前的延迟
   leaveDelay: number; // leave动画开始前的延迟
 }
@@ -112,7 +112,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leave,
     };
   });
-  const [postpone] = useState<TransitusDelay>(() => {
+  const [postpone, setPostpone] = useState<TransitusDelay>(() => {
     let enterDelay: number = defaultDelay;
     let leaveDelay: number = defaultDelay;
     if (isObj(delay)) {
@@ -246,9 +246,13 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!isUnd(ID) && !isUnd(animations[ID])) {
       const {
         animation = false,
-        delay,
+        delay = defaultDelay,
       } = animations[ID];
       setAnimation(animation);
+      setPostpone({
+        enterDelay: delay as number,
+        leaveDelay: delay as number,
+      });
     }
   }, [animations]);
 

@@ -4,7 +4,9 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import { TransitusProps } from './Transitus';
+import {
+  TransitusProps,
+} from './Transitus';
 import {
   isUnd,
 } from '../util/checkType';
@@ -30,23 +32,21 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
   } = props;
 
   const [animations, setAnimations] = useState({});
-  const animationsRef = useRef<{
-    [key: string]: TransitusProps,
-  }>({});
+  const animationsRef = useRef<Map<string, TransitusProps>>(new Map());
   const register = useCallback((props: TransitusProps) => {
     const { ID } = props;
     if (!isUnd(ID)) {
-      animationsRef.current[ID] = props;
+      animationsRef.current.set(ID, props)
     }
   }, []);
 
   useEffect(() => {
     let counter = 0;
-    const transitus = Object.values(animationsRef.current) || [];
+    const transitus = [...animationsRef.current.values()] || [];
     const animationsTemp: {
       [key: string]: Omit<TransitusProps, 'children'>
     }= {};
-    (!animation ? transitus : [...transitus.reverse()]).forEach((t) => {
+    (animation ? transitus : [...transitus.reverse()]).forEach((t) => {
       const { ID } = t;
       if (!isUnd(ID)) {
         animationsTemp[ID] = {
