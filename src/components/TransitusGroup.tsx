@@ -15,8 +15,10 @@ interface TransitusGroup {
 }
 
 export const TransitusContext = React.createContext({
-  animations: {},
-  register: (props: TransitusProps) => {},
+  animations: {} as {
+    [key: string]: Omit<TransitusProps, 'children'>
+  },
+  register: (props: TransitusProps): void => {},
 });
 
 const TransitusGroup: React.FC<TransitusGroup> = (props) => {
@@ -44,7 +46,7 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
     const animationsTemp: {
       [key: string]: Omit<TransitusProps, 'children'>
     }= {};
-    (animation ? transitus : [...transitus.reverse()]).forEach((t) => {
+    (!animation ? transitus : [...transitus.reverse()]).forEach((t) => {
       const { ID } = t;
       if (!isUnd(ID)) {
         animationsTemp[ID] = {

@@ -8,6 +8,7 @@ import useDidMount from '../util/useDidMount';
 import {
   isObj,
   isNum,
+  isUnd,
 } from '../util/checkType';
 import { TransitusContext } from './TransitusGroup';
 
@@ -59,7 +60,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     duration = defaultDuration,
     delay = 0,
     unmount = false,
-    animation = false,
+    animation: play = false,
     enter = true,
     leave = true,
     appear = true,
@@ -73,6 +74,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     ID,
   } = props;
 
+  const [animation, setAnimation] = useState(play);
   const { register, animations } = useContext(TransitusContext);
   const self = useRef(null);
   const firstMount = useRef(true);
@@ -235,6 +237,20 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       firstMount.current = false;
     }
   }, [animation, status]);
+
+  useEffect(() => {
+    setAnimation(play);
+  }, [play]);
+
+  useEffect(() => {
+    if (!isUnd(ID) && !isUnd(animations[ID])) {
+      const {
+        animation = false,
+        delay,
+      } = animations[ID];
+      setAnimation(animation);
+    }
+  }, [animations]);
 
   if (status === STATUS['UNMOUNTED']) {
     return null;
