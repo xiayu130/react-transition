@@ -2,12 +2,14 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useContext,
 } from 'react';
 import useDidMount from '../util/useDidMount';
 import {
   isObj,
   isNum,
 } from '../util/checkType';
+import { TransitusContext } from './TransitusGroup';
 
 const defaultDuration = 200;
 const defaultDelay = 0;
@@ -33,7 +35,7 @@ export interface TransitusProps {
   duration?: number | TransitusDuration; // 动画的时间
   delay?: number | TransitusDelay; // 动画开启前的延迟时间
   animation?: boolean; // 组件的显隐状态
-  children: React.ReactElement;
+  children?: React.ReactElement;
   unmount?: boolean; // 是否在离开后卸载组件
   enter?: boolean; // 是否启用进入动画
   leave?: boolean; // 是否启用离开动画
@@ -121,7 +123,8 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       enterDelay,
       leaveDelay,
     };
-  })
+  });
+  const { register, animations } = useContext(TransitusContext);
 
   const handleEnter = () => {
     // 不需要执行入场动画

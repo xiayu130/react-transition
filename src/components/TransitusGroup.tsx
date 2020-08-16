@@ -10,14 +10,11 @@ import {
 } from '../util/checkType';
 
 interface TransitusGroup {
-  appear?: boolean; // 是否首次挂载时，使用入场动画
-  enter?: boolean; // 是否禁用入场动画
-  leave?: boolean; // 是否禁用出场动画
   animation?: boolean; // 是否开启动画
   interval?: number; // group间隔的时间
 }
 
-const TransitusContext = React.createContext({
+export const TransitusContext = React.createContext({
   animations: {},
   register: (props: TransitusProps) => {},
 });
@@ -25,9 +22,6 @@ const TransitusContext = React.createContext({
 const TransitusGroup: React.FC<TransitusGroup> = (props) => {
 
   const {
-    appear = false,
-    enter = false,
-    leave = false,
     animation = false,
     interval = 200,
     children,
@@ -45,18 +39,19 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
   }, []);
 
   useEffect(() => {
+    let counter = 0;
     const transitus = Object.values(animationsRef.current) || [];
-    const counter = 0;
-    const animationsTemp = {};
+    const animationsTemp: {
+      [key: string]: TransitusProps
+    }= {};
     (animation ? transitus : [...transitus.reverse()]).forEach((t) => {
       const { ID } = t;
       if (!isUnd(ID)) {
         animationsTemp[ID] = {
-          appear,
-          enter,
-          leave,
-          interval,
+          delay: interval + (counter * interval),
+          animation,
         };
+        counter += 1;
       }
     });
     setAnimations(animationsTemp);
