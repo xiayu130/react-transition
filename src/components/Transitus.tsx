@@ -35,7 +35,7 @@ export interface TransitusProps {
   duration?: number | TransitusDuration; // 动画的时间
   delay?: number | TransitusDelay; // 动画开启前的延迟时间
   animation?: boolean; // 组件的显隐状态
-  children?: React.ReactElement;
+  children: React.ReactElement;
   unmount?: boolean; // 是否在离开后卸载组件
   enter?: boolean; // 是否启用进入动画
   leave?: boolean; // 是否启用离开动画
@@ -73,6 +73,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     ID,
   } = props;
 
+  const { register, animations } = useContext(TransitusContext);
   const self = useRef(null);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
@@ -124,7 +125,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leaveDelay,
     };
   });
-  const { register, animations } = useContext(TransitusContext);
 
   const handleEnter = () => {
     // 不需要执行入场动画
@@ -188,6 +188,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   };
 
   useDidMount(() => {
+    register(props);
     updateStatus(nextStatus.current);
   });
 

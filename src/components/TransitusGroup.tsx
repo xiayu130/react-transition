@@ -42,7 +42,7 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
     let counter = 0;
     const transitus = Object.values(animationsRef.current) || [];
     const animationsTemp: {
-      [key: string]: TransitusProps
+      [key: string]: Omit<TransitusProps, 'children'>
     }= {};
     (animation ? transitus : [...transitus.reverse()]).forEach((t) => {
       const { ID } = t;
