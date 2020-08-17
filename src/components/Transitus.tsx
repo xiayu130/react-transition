@@ -13,6 +13,7 @@ import {
   isFunc,
 } from '../util/checkType';
 import { TransitusContext } from './TransitusGroup';
+import { v4 as uuid } from 'uuid';
 
 const defaultDuration = 200;
 const defaultDelay = 0;
@@ -40,7 +41,6 @@ export interface TransitusProps {
   appear?: boolean; // 是否在首次挂载时使用enter动画
   timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
   transitionStyles?: TransitionStyles; // 过渡的样式
-  ID?: string;
 }
 
 enum STATUS {
@@ -63,20 +63,20 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     appear = true,
     children,
     transitionStyles = {
-      entering: { opacity: 0.8 },
+      entering: { opacity: 1 },
       enter: { opacity: 1 },
       leaveing: { opacity: 0 },
       leave: { opacity: 0 },
     },
-    ID,
   } = props;
 
-  const [animation, setAnimation] = useState(_animation);
   const { register, animations } = useContext(TransitusContext);
+  const [animation, setAnimation] = useState(_animation);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
   const prevStatus = useRef<null | STATUS>(null);
   const timer = useRef(0);
+  const ID = useRef(uuid());
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
     if (animation) {
@@ -170,7 +170,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   };
 
   useDidMount(() => {
-    register(props);
+    register({ ...props, ID: ID.current });
     updateStatus(nextStatus.current);
   });
 
@@ -231,11 +231,11 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   }, [_animation]);
 
   useEffect(() => {
-    if (!isUnd(ID) && !isUnd(animations[ID])) {
+    if (!isUnd(ID.current) && !isUnd(animations[ID.current])) {
       const {
         animation = false,
         delay = defaultDelay,
-      } = animations[ID];
+      } = animations[ID.current];
       setAnimation(animation);
       setDelay(delay);
     }

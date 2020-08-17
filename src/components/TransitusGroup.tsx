@@ -16,11 +16,17 @@ interface TransitusGroup {
   interval?: number; // group间隔的时间
 }
 
+type TransitusPropsAndID = TransitusProps & {
+  ID: string;
+}
+type TransitusContextPropsKey = Exclude<keyof TransitusPropsAndID, 'delay' | 'animation'>;
+type TransitusContextProps = Omit<TransitusPropsAndID, TransitusContextPropsKey>;
+
 export const TransitusContext = React.createContext({
   animations: {} as {
-    [key: string]: Omit<TransitusProps, 'children'>
+    [key: string]: TransitusContextProps;
   },
-  register: (props: TransitusProps): void => {},
+  register: (props: TransitusPropsAndID): void => {},
 });
 
 const TransitusGroup: React.FC<TransitusGroup> = (props) => {
@@ -32,8 +38,8 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
   } = props;
 
   const [animations, setAnimations] = useState({});
-  const animationsRef = useRef<Map<string, TransitusProps>>(new Map());
-  const register = useCallback((props: TransitusProps) => {
+  const animationsRef = useRef<Map<string, TransitusPropsAndID>>(new Map());
+  const register = useCallback((props: TransitusPropsAndID) => {
     const { ID } = props;
     if (!isUnd(ID)) {
       animationsRef.current.set(ID, props)
@@ -44,8 +50,8 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
     let counter = 0;
     const transitus = [...animationsRef.current.values()] || [];
     const animationsTemp: {
-      [key: string]: Omit<TransitusProps, 'children'>
-    }= {};
+      [key: string]: TransitusContextProps;
+    } = {};
     (animation ? transitus : [...transitus.reverse()]).forEach((t) => {
       const { ID } = t;
       if (!isUnd(ID)) {
