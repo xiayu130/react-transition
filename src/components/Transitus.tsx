@@ -183,7 +183,13 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         break;
       case STATUS['LEAVEING']:
         timer.current = handleTransitionTime(duration.leave, () => {
-          setStatus(STATUS['LEAVE']);
+          if (unmount) {
+            handleTransitionTime(delay, () => {
+              setStatus(STATUS['LEAVE']);
+            });
+          } else {
+            setStatus(STATUS['LEAVE']);
+          }
         });
         break;
     }
