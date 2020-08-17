@@ -22,11 +22,6 @@ interface TransitusDuration {
   leave: number;
 }
 
-export interface TransitusDelay {
-  enterDelay: number;
-  leaveDelay: number;
-}
-
 interface TransitionStyles {
   enter?: React.CSSProperties;
   entering?: React.CSSProperties;
@@ -36,7 +31,7 @@ interface TransitionStyles {
 
 export interface TransitusProps {
   duration?: number | TransitusDuration; // 动画持续时间
-  delay?: number | TransitusDelay; // 动画开启前的延迟时间
+  delay?: number; // 动画开启前的延迟时间
   animation?: boolean; // 动画的开关
   children: React.ReactElement;
   unmount?: boolean; // 是否在离开后销毁DOM
@@ -68,7 +63,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     appear = true,
     children,
     transitionStyles = {
-      entering: { opacity: 1 },
+      entering: { opacity: 0.8 },
       enter: { opacity: 1 },
       leaveing: { opacity: 0 },
       leave: { opacity: 0 },
@@ -80,6 +75,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const { register, animations } = useContext(TransitusContext);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
+  const prevStatus = useRef<null | STATUS>(null);
   const timer = useRef(0);
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
@@ -114,30 +110,22 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leave,
     };
   });
-  const [delay, setDelay] = useState<TransitusDelay>(() => {
-    let enterDelay: number = defaultDelay;
-    let leaveDelay: number = defaultDelay;
-    if (isObj(_delay)) {
-      enterDelay = isNum(_delay.enterDelay) ? _delay.enterDelay : defaultDuration;
-      leaveDelay = isNum(_delay.leaveDelay) ? _delay.leaveDelay : defaultDuration;
-    }
-    if (isNum(_delay)) {
-      enterDelay = leaveDelay = _delay;
-    }
-    return {
-      enterDelay,
-      leaveDelay,
-    };
-  });
+  const [delay, setDelay] = useState<number>(_delay);
 
   const handleEnter = () => {
     // 不需要执行入场动画
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      handleTransitionTime(delay.enterDelay, () => {
+      if (prevStatus.current === STATUS['UNMOUNTED']) {
+        // 需要等待dom渲染完毕
+        setTimeout(() => {
+          setStatus(STATUS['ENTERING']);
+          prevStatus.current = null;
+        }, 16);
+      } else {
         setStatus(STATUS['ENTERING']);
-      });
+      }
     }
   };
 
@@ -146,9 +134,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!leave) {
       setStatus(STATUS['LEAVE']);
     } else {
-      handleTransitionTime(delay.leaveDelay, () => {
-        setStatus(STATUS['LEAVEING']);
-      });
+      setStatus(STATUS['LEAVEING']);
     }
   };
 
@@ -189,6 +175,34 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   });
 
   useEffect(() => {
+    switch (status) {
+      case STATUS['ENTERING']:
+        timer.current = handleTransitionTime(duration.enter, () => {
+          setStatus(STATUS['ENTER']);
+        });
+        break;
+      case STATUS['LEAVEING']:
+        timer.current = handleTransitionTime(duration.leave, () => {
+          setStatus(STATUS['LEAVE']);
+        });
+        break;
+    }
+    return () => {
+      clearTimeout(timer.current);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (animation) {
+      // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
+      if (status === STATUS['UNMOUNTED']) {
+        prevStatus.current = STATUS['UNMOUNTED'];
+        setStatus(STATUS['LEAVE']);
+      }
+    }
+  }, [animation]);
+
+  useEffect(() => {
     if (!firstMount.current) {
       let nextStatus = null;
       if (animation) {
@@ -198,18 +212,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         ) {
           nextStatus = STATUS['ENTERING'];
         }
-        if (status === STATUS['ENTERING']) {
-          // 动画完成后进入ENTER状态
-          timer.current = handleTransitionTime(duration.enter, () => {
-            setStatus(STATUS['ENTER']);
-          });
-          return;
-        }
-        // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
-        if (status === STATUS['UNMOUNTED']) {
-          setStatus(STATUS['LEAVE']);
-          return;
-        }
       } else {
         if (
           status === STATUS['ENTERING'] ||
@@ -217,20 +219,10 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         ) {
           nextStatus = STATUS['LEAVEING'];
         }
-        if (status === STATUS['LEAVEING']) {
-          // 动画完成后，进入LEAVE状态
-          timer.current = handleTransitionTime(duration.leave, () => {
-            setStatus(STATUS['LEAVE']);
-          });
-          return;
-        }
       }
       updateStatus(nextStatus);
     } else {
       firstMount.current = false;
-    }
-    return () => {
-      clearTimeout(timer.current);
     }
   }, [animation, status]);
 
@@ -245,10 +237,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         delay = defaultDelay,
       } = animations[ID];
       setAnimation(animation);
-      setDelay({
-        enterDelay: delay as number,
-        leaveDelay: delay as number,
-      });
+      setDelay(delay);
     }
   }, [animations]);
 
@@ -258,7 +247,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
 
   const statusStyles = transitionStyles[status] || {};
   const transitionStyle = {
-    transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction}`,
+    transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction} ${delay}ms`,
   };
 
   return React.cloneElement(React.Children.only(children), {
