@@ -16,7 +16,7 @@ interface TransitusGroup {
   interval?: number; // group间隔的时间
 }
 
-type TransitusPropsAndID = TransitusProps & {
+export type TransitusPropsAndID = TransitusProps & {
   ID: string;
 }
 type TransitusContextPropsKey = Exclude<keyof TransitusPropsAndID, 'delay' | 'animation'>;

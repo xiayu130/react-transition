@@ -1,6 +1,13 @@
 import React, {
   useState,
+  useRef,
+  useEffect,
 } from 'react';
+import {
+  TransitusPropsAndID,
+} from './TransitusGroup';
+
+export const TransitusQueueContext = React.createContext(null);
 
 interface TransitusQueue {
   appear?: boolean;
@@ -9,7 +16,22 @@ interface TransitusQueue {
 }
 
 const TransitusQueue: React.FC<TransitusQueue> = (props) => {
-  return null;
+
+  const {
+    children,
+  } = props;
+
+  const firstMount = useRef(true);
+
+  useEffect(() => {
+
+  }, [children]);
+
+  return (
+    <TransitusQueueContext.Provider value={null}>
+      { children }
+    </TransitusQueueContext.Provider>
+  )
 }
 
 export default TransitusQueue;

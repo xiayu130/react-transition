@@ -55,7 +55,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const {
     timingFunction = 'ease-in-out',
     duration: _duration = defaultDuration,
-    delay: _delay = 0,
+    delay: _delay = defaultDelay,
     unmount = false,
     animation: _animation = false,
     enter = true,
