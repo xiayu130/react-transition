@@ -18,13 +18,33 @@ interface TransitusQueue {
 const TransitusQueue: React.FC<TransitusQueue> = (props) => {
 
   const {
-    children,
+    children: _children,
   } = props;
 
   const firstMount = useRef(true);
+  const [children, setChildren] = useState(() => {
+    return initChildren(children);
+  });
+
+  const initChildren = (children: React.ReactNode): React.ReactNode  => {
+    return children;
+  };
+
+  const nextChildren = (
+    nextchildren: React.ReactNode,
+    prevChildren: React.ReactNode,
+  ) => {
+  }
 
   useEffect(() => {
+    if (!firstMount.current) {
+      setChildren((prevChildren) => {
+        return nextChildren(_children, prevChildren);
+      });
+    } else {
+      firstMount.current = false;
 
+    }
   }, [children]);
 
   return (
