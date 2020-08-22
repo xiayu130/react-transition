@@ -11,6 +11,7 @@ import {
   isUnd,
 } from '../util/checkType';
 
+// TODO: 需要完善类型
 interface TransitusGroup {
   animation?: boolean; // 是否开启动画
   interval?: number; // group间隔的时间
@@ -33,7 +34,7 @@ const TransitusGroup: React.FC<TransitusGroup> = (props) => {
 
   const {
     animation = false,
-    interval = 200,
+    interval = 100,
     children,
   } = props;
 

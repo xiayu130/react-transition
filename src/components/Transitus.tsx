@@ -57,6 +57,7 @@ enum STATUS {
   LEAVEING = 'leaveing', // 离开时
 }
 
+// TODO: 需要完善类型
 const Transitus: React.FC<TransitusProps> = (props) => {
   const {
     display = {
