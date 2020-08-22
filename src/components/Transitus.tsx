@@ -42,9 +42,9 @@ export interface TransitusProps {
   animation?: boolean; // 动画的开关
   children: React.ReactElement;
   unmount?: boolean; // 是否在离开后销毁DOM
-  enter?: boolean; // 是否启用进入动画
-  leave?: boolean; // 是否启用离开动画
-  appear?: boolean; // 是否在首次挂载时使用enter动画
+  enter?: boolean; // 开启 LEAVE -> ENTERING -> ENTER 关闭 LEAVE -> ENTER
+  leave?: boolean; // 开启 ENTER -> LEAVEING -> LEAVE 关闭 ENTER -> LEAVE
+  appear?: boolean; // 首次加载时 开启 LEAVE -> ENTERING -> ENTER 关闭 LEAVE -> ENTER
   timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
   transitionStyles?: TransitionStyles; // 过渡的样式
 }
