@@ -23,6 +23,11 @@ interface TransitusDuration {
   leave: number;
 }
 
+interface TransitusDisplay {
+  enter: React.CSSProperties;
+  leave: React.CSSProperties;
+}
+
 interface TransitionStyles {
   enter?: React.CSSProperties;
   entering?: React.CSSProperties;
@@ -31,6 +36,7 @@ interface TransitionStyles {
 }
 
 export interface TransitusProps {
+  display?: boolean | TransitusDisplay;
   duration?: number | TransitusDuration; // 动画持续时间
   delay?: number; // 动画开启前的延迟时间
   animation?: boolean; // 动画的开关
@@ -53,6 +59,10 @@ enum STATUS {
 
 const Transitus: React.FC<TransitusProps> = (props) => {
   const {
+    display = {
+      enter: { display: 'block' },
+      leave: { display: 'none' }
+    },
     timingFunction = 'ease-in-out',
     duration: _duration = defaultDuration,
     delay: _delay = defaultDelay,
@@ -111,18 +121,22 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     };
   });
   const [delay, setDelay] = useState<number>(_delay);
+  const [displayStyles, setDisplayStyles] = useState<React.CSSProperties>({});
 
   const handleEnter = () => {
     // 不需要执行入场动画
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      if (prevStatus.current === STATUS['UNMOUNTED']) {
+      if (
+        prevStatus.current === STATUS['UNMOUNTED'] ||
+        isObj(display)
+      ) {
         // 需要等待dom渲染完毕
-        setTimeout(() => {
+        handleTransitionTime(16, () => {
           setStatus(STATUS['ENTERING']);
           prevStatus.current = null;
-        }, 16);
+        });
       } else {
         setStatus(STATUS['ENTERING']);
       }
@@ -192,6 +206,8 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           }
         });
         break;
+      case STATUS['LEAVE']:
+        break;
     }
     return () => {
       clearTimeout(timer.current);
@@ -204,9 +220,25 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       if (status === STATUS['UNMOUNTED']) {
         prevStatus.current = STATUS['UNMOUNTED'];
         setStatus(STATUS['LEAVE']);
+      } else if (status === STATUS['LEAVE'] && isObj(display)) {
+        setDisplayStyles({
+          ...display.enter,
+        });
+      }
+    } else {
+      if (
+        status === STATUS['LEAVE'] &&
+        isObj(display) &&
+        !firstMount.current
+      ) {
+        handleTransitionTime(duration.leave + delay, () => {
+          setDisplayStyles({
+            ...display.leave,
+          });
+        });
       }
     }
-  }, [animation]);
+  }, [animation, status]);
 
   useEffect(() => {
     if (!firstMount.current) {
@@ -255,11 +287,14 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const transitionStyle = {
     transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction} ${delay}ms`,
   };
+  const prevStyles = children?.props?.style || {};
 
   return React.cloneElement(React.Children.only(children), {
     style: {
+      ...prevStyles,
       ...transitionStyle,
       ...statusStyles,
+      ...displayStyles,
     },
   })
 };
