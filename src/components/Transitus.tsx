@@ -13,6 +13,7 @@ import {
   isFunc,
 } from '../util/checkType';
 import { TransitusContext } from './TransitusGroup';
+import { TransitusQueueContext } from './TransitusQueue';
 import { v4 as uuid } from 'uuid';
 
 const defaultDuration = 200;
@@ -49,7 +50,7 @@ export interface TransitusProps {
   transitionStyles?: TransitionStyles; // 过渡的样式
 }
 
-enum STATUS {
+export enum STATUS {
   UNMOUNTED = 'unmounted', // 卸载
   ENTER = 'enter', // 已经进入
   ENTERING = 'entering', // 进入时
@@ -60,10 +61,7 @@ enum STATUS {
 // TODO: 需要完善类型
 const Transitus: React.FC<TransitusProps> = (props) => {
   const {
-    display = {
-      enter: { display: 'block' },
-      leave: { display: 'none' }
-    },
+    display = false,
     timingFunction = 'ease-in-out',
     duration: _duration = defaultDuration,
     delay: _delay = defaultDelay,
@@ -82,6 +80,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   } = props;
 
   const { register, animations } = useContext(TransitusContext);
+  const { _status } = useContext(TransitusQueueContext);
   const [animation, setAnimation] = useState(_animation);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
@@ -90,6 +89,9 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const ID = useRef(uuid());
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
+    if (_status) {
+      return _status;
+    }
     if (animation) {
       if (appear) {
         initStatus = STATUS['LEAVE'];
