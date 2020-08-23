@@ -46,7 +46,7 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
   const mergeMap = (prev: ChildrenMap, next: ChildrenMap): ChildrenMap => {
     prev = prev || {};
     next = next || {};
-    function getValueForKey(key: any) {
+    function getValueForKey(key: React.ReactText) {
       return key in next ? next[key] : prev[key];
     }
     let nextKeysPending = Object.create(null);
@@ -62,12 +62,12 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
       }
     }
     let i;
-    let childMapping: any = {};
+    let childMapping: ChildrenMap = {};
     for (let nextKey in next) {
       if (nextKeysPending[nextKey]) {
         for (i = 0; i < nextKeysPending[nextKey].length; i++) {
           let pendingNextKey = nextKeysPending[nextKey][i];
-          childMapping[nextKeysPending[nextKey][i]] = getValueForKey(
+          childMapping[pendingNextKey] = getValueForKey(
             pendingNextKey
           );
         }
