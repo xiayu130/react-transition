@@ -48,6 +48,7 @@ export interface TransitusProps {
   appear?: boolean; // 首次加载时 开启 LEAVE -> ENTERING -> ENTER 关闭 LEAVE -> ENTER
   timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
   transitionStyles?: TransitionStyles; // 过渡的样式
+  onLeave?: () => void;
 }
 
 export enum STATUS {
@@ -77,10 +78,11 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leaveing: { opacity: 0 },
       leave: { opacity: 0 },
     },
+    onLeave = noop,
   } = props;
 
   const { register, animations } = useContext(TransitusContext);
-  const { _status } = useContext(TransitusQueueContext);
+  const { _initStatus } = useContext(TransitusQueueContext);
   const [animation, setAnimation] = useState(_animation);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
@@ -89,8 +91,8 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const ID = useRef(uuid());
   const [status, setStatus] = useState<STATUS>(() => {
     let initStatus!: STATUS;
-    if (_status) {
-      return _status;
+    if (_initStatus) {
+      return _initStatus;
     }
     if (animation) {
       if (appear) {
@@ -210,6 +212,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         });
         break;
       case STATUS['LEAVE']:
+        onLeave();
         break;
     }
     return () => {
