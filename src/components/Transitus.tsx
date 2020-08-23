@@ -48,7 +48,6 @@ export interface TransitusProps {
   appear?: boolean; // 首次加载时 开启 LEAVE -> ENTERING -> ENTER 关闭 LEAVE -> ENTER
   timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
   transitionStyles?: TransitionStyles; // 过渡的样式
-  onLeave?: () => void;
 }
 
 export enum STATUS {
@@ -78,7 +77,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leaveing: { opacity: 0 },
       leave: { opacity: 0 },
     },
-    onLeave = noop,
   } = props;
 
   const { register, animations } = useContext(TransitusContext);
@@ -210,9 +208,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
             setStatus(STATUS['LEAVE']);
           }
         });
-        break;
-      case STATUS['LEAVE']:
-        onLeave();
         break;
     }
     return () => {
