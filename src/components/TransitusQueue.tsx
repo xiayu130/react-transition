@@ -111,6 +111,10 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
         appear: getProps(appear, props.appear),
         enter: getProps(enter, props.enter),
         leave: getProps(leave, props.leave),
+        onLeave: () => {
+          const key = (child as React.ReactElement).key || '';
+          handleLeave(key);
+        },
       });
     });
   };
@@ -130,7 +134,7 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
       const hasKeyByPrev = prevChildrenMap[key] !== undefined;
       const isNew = hasKeyByNew && !hasKeyByPrev;
       const isDelete = !hasKeyByNew && hasKeyByPrev;
-      const isNeverChange = hasKeyByNew&& hasKeyByPrev;
+      const isNeverChange = hasKeyByNew && hasKeyByPrev;
       const prevProps = ((prevChildrenMap[key] as React.ReactElement)?.props as TransitusProps);
       const nextProps = ((nextChildrenMap[key] as React.ReactElement)?.props as TransitusProps);
       if (isNew) {
@@ -139,45 +143,41 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
           appear: getProps(appear, nextProps.appear),
           enter: getProps(enter, nextProps.enter),
           leave: getProps(leave, nextProps.leave),
+          onLeave: () => {
+            const key = (child as React.ReactElement).key || '';
+            handleLeave(key);
+          },
         });
       } else if (isDelete) {
-        let key = (child as React.ReactElement).key || '';
         children[key] = React.cloneElement(child, {
           animation: false,
         });
-        deleteKeyMap.current = {
-          ...deleteKeyMap.current,
-          [key]: key,
-        };
       } else if (isNeverChange) {
         children[key] = React.cloneElement(child, {
           animation: prevProps.animation,
           appear: prevProps.appear,
           enter: prevProps.enter,
           leave: prevProps.leave,
+          onLeave: () => {
+            const key = (child as React.ReactElement).key || '';
+            handleLeave(key);
+          },
         });
       }
     });
     return children;
   };
 
-  const handleLeave = () => {
-    const temp = deleteKeyMap.current;
-    deleteKeyMap.current = {};
+  const handleLeave = (key: React.ReactText) => {
     setChildren((prevChildren) => {
-      Object.values(temp).forEach((value) => {
-        if (value in prevChildren) {
-          delete prevChildren[value];
-        }
-      });
+      if (key in prevChildren) {
+        delete prevChildren[key];
+      }
       return { ...prevChildren };
     });
   };
 
   const firstMount = useRef<boolean>(true);
-  const deleteKeyMap = useRef<{
-    [key: string]: React.ReactText;
-  }>({});
   const [children, setChildren] = useState<ChildrenMap>(() => {
     return initChildren(_children);
   });
@@ -189,15 +189,6 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
       firstMount.current = false;
     }
   }, [_children]);
-
-  useEffect(() => {
-    if (
-      !firstMount.current &&
-      Object.values(deleteKeyMap.current).length > 0
-    ) {
-      handleLeave();
-    }
-  }, [children]);
 
   const childNode = Object.values(children);
 
