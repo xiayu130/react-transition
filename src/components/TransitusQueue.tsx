@@ -30,7 +30,7 @@ function getProps<T>(p1: T, p2: T): T {
 }
 
 export const TransitusQueueContext = React.createContext({} as {
-  _status: STATUS,
+  _initStatus: STATUS,
 });
 
 const TransitusQueue: React.FC<TransitusQueue> = (props) => {
@@ -44,9 +44,66 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
   } = props;
 
   const mergeMap = (prev: ChildrenMap, next: ChildrenMap): ChildrenMap => {
+    prev = prev || {};
+    next = next || {};
+    function getValueForKey(key: any) {
+      return key in next ? next[key] : prev[key];
+    }
+    let nextKeysPending = Object.create(null);
+    let pendingKeys = [];
+    for (let prevKey in prev) {
+      if (prevKey in next) {
+        if (pendingKeys.length) {
+          nextKeysPending[prevKey] = pendingKeys;
+          pendingKeys = [];
+        }
+      } else {
+        pendingKeys.push(prevKey);
+      }
+    }
+    let i;
+    let childMapping: any = {};
+    for (let nextKey in next) {
+      if (nextKeysPending[nextKey]) {
+        for (i = 0; i < nextKeysPending[nextKey].length; i++) {
+          let pendingNextKey = nextKeysPending[nextKey][i];
+          childMapping[nextKeysPending[nextKey][i]] = getValueForKey(
+            pendingNextKey
+          );
+        }
+      }
+      childMapping[nextKey] = getValueForKey(nextKey);
+    }
+    for (i = 0; i < pendingKeys.length; i++) {
+      childMapping[pendingKeys[i]] = getValueForKey(pendingKeys[i]);
+    }
+    return childMapping;
   };
 
-  const initChildren = (children: React.ReactNode): ChildrenMap => {
+  const getMap = (
+    children: React.ReactNode,
+    callback?: (child: React.ReactNode) => React.ReactNode
+  ): ChildrenMap => {
+    const map = Object.create(null);
+    if (children) {
+      // 如果没有手动添加key, React.Children.map会自动添加key
+      React.Children.map(children, c => c)?.forEach((child) => {
+        const key = (child as React.ReactElement).key || '';
+        if (key) {
+          if (React.isValidElement(child) && isFunc(callback)) {
+            map[key] = callback(child);
+          } else {
+            map[key] = child;
+          }
+        }
+      });
+    }
+    return map;
+  };
+
+  const initChildren = (
+    children: React.ReactNode,
+  ): ChildrenMap => {
     return getMap(children, (child) => {
       const props = ((child as React.ReactElement)?.props as TransitusProps);
       return React.cloneElement(child as React.ReactElement, {
@@ -84,9 +141,14 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
           leave: getProps(leave, nextProps.leave),
         });
       } else if (isDelete) {
+        let key = (child as React.ReactElement).key || '';
         children[key] = React.cloneElement(child, {
           animation: false,
         });
+        deleteKeyMap.current = {
+          ...deleteKeyMap.current,
+          [key]: key,
+        };
       } else if (isNeverChange) {
         children[key] = React.cloneElement(child, {
           animation: prevProps.animation,
@@ -99,7 +161,23 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
     return children;
   };
 
-  const firstMount = useRef(true);
+  const handleLeave = () => {
+    const temp = deleteKeyMap.current;
+    deleteKeyMap.current = {};
+    setChildren((prevChildren) => {
+      Object.values(temp).forEach((value) => {
+        if (value in prevChildren) {
+          delete prevChildren[value];
+        }
+      });
+      return { ...prevChildren };
+    });
+  };
+
+  const firstMount = useRef<boolean>(true);
+  const deleteKeyMap = useRef<{
+    [key: string]: React.ReactText;
+  }>({});
   const [children, setChildren] = useState<ChildrenMap>(() => {
     return initChildren(_children);
   });
@@ -112,6 +190,15 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
     }
   }, [_children]);
 
+  useEffect(() => {
+    if (
+      !firstMount.current &&
+      Object.values(deleteKeyMap.current).length > 0
+    ) {
+      handleLeave();
+    }
+  }, [children]);
+
   const childNode = Object.values(children);
 
   if (wrap) {
@@ -120,7 +207,7 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
 
   return (
     <TransitusQueueContext.Provider value={{
-      _status: 'unmounted' as STATUS,
+      _initStatus: 'unmounted' as STATUS,
     }}>
       { childNode }
     </TransitusQueueContext.Provider>
