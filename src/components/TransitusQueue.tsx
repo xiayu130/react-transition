@@ -43,6 +43,8 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
     wrap,
   } = props;
 
+  // 合并前一个propsMap，和当前的propsMap，需要完成动画后
+  // 再对Leave状态的内容做删除的操作
   const mergeMap = (prev: ChildrenMap, next: ChildrenMap): ChildrenMap => {
     prev = prev || {};
     next = next || {};
