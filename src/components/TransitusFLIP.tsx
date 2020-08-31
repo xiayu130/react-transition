@@ -5,13 +5,13 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from 'react';
-import { v4 as uuid } from 'uuid';
 import { FLIPSContext } from './TransitusFLIPS';
 import getRect from '../util/getReact';
 import getX from '../util/getX';
 import getY from '../util/getY';
 import getW from '../util/getW';
 import getH from '../util/getH';
+import createAnimation from '../util/createAnimation';
 
 interface TransitusFLIP {
   children: React.ReactElement;
@@ -34,6 +34,9 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
   const firstMount = useRef<boolean>(true);
   // 这里不能使用随机数，id和缓存的样式互相绑定
   const FLIPID = useRef(flipId);
+
+  useEffect(() => {
+  });
 
   useEffect(() => {
     // 初始化样式缓存
@@ -80,6 +83,8 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
         ];
         // Web Animation 的配置
         const animationOptions: KeyframeAnimationOptions = animationOption;
+        const animation = createAnimation(flipEle, animationKeyframes, animationOptions);
+        catchAnimations.set(FLIPID.current, animation);
       }
     }
   });

@@ -1,5 +1,4 @@
 import React, {
-  useState,
   useRef,
   useLayoutEffect,
 } from 'react';
@@ -50,6 +49,15 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
     easing,
     fill,
   };
+
+  useLayoutEffect(() => {
+    if (catchAnimations.size > 0) {
+      const values = catchAnimations.values();
+      for (const value of values) {
+        value.play();
+      }
+    }
+  });
 
   return (
     <FLIPSContext.Provider value={{
