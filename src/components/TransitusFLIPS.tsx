@@ -10,6 +10,8 @@ interface TransitusFLIPS {
   duration?: number;
   easing?: string;
   fill?: 'auto' | 'backwards' | 'both' | 'forwards' | 'none' | undefined;
+  wrap?: string;
+  wrapClassName?: string;
 }
 
 interface FLIPSContext {
@@ -38,6 +40,8 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
     duration = 200,
     easing = 'linear',
     fill = 'both',
+    wrap = '',
+    wrapClassName = '',
     children,
   } = props;
 
@@ -58,6 +62,24 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
       }
     }
   });
+
+
+
+  if (wrap) {
+    const wrapChildren = React.createElement(wrap, {
+      className: wrapClassName,
+    }, children);
+
+    return (
+      <FLIPSContext.Provider value={{
+        catchStyles,
+        catchAnimations,
+        animationOption,
+      }}>
+        { wrapChildren }
+      </FLIPSContext.Provider>
+    )
+  }
 
   return (
     <FLIPSContext.Provider value={{
