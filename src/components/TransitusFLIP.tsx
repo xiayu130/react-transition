@@ -35,8 +35,22 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
   // 这里不能使用随机数，id和缓存的样式互相绑定
   const FLIPID = useRef(flipId);
 
-  useEffect(() => {
-  });
+  const force = () => {
+    const flipEle = selfRef.current;
+    const catchAnimation = catchAnimations.get(FLIPID.current);
+    if (flipEle && catchAnimation) {
+      // 正在运行动画
+      if (catchAnimation.playState === 'running') {
+        catchStyles.set(FLIPID.current, {
+          rect: getRect(flipEle),
+        });
+        // 结束当前动画
+        catchAnimation.finish();
+      }
+    }
+  }
+
+  force();
 
   useEffect(() => {
     // 初始化样式缓存
