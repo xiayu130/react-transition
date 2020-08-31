@@ -75,10 +75,10 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
         // Web Animation 关键帧
         const animationKeyframes: Keyframe[] = [
           {
-            transform: `translate(${x}, ${y}) scaleX(${w}) scaleY(${h})`,
+            transform: `translate(${x}px, ${y}px) scale(${w}, ${h})`,
           },
           {
-            transform: `translate(0, 0) scaleX(1) scaleY(1)`,
+            transform: `translate(0, 0) scale(1, 1)`,
           },
         ];
         // Web Animation 的配置
