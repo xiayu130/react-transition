@@ -6,10 +6,10 @@ import React, {
 type Rect = DOMRect | ClientRect;
 
 interface TransitusFLIPS {
-  delay: number;
-  duration: number;
-  easing: string;
-  fill: "auto" | "backwards" | "both" | "forwards" | "none" | undefined;
+  delay?: number;
+  duration?: number;
+  easing?: string;
+  fill?: 'auto' | 'backwards' | 'both' | 'forwards' | 'none' | undefined;
 }
 
 interface FLIPSContext {
@@ -22,8 +22,8 @@ interface CatchStylesValue {
   rect: Rect;
 }
 
-type CatchStylesMap = Map<string, CatchStylesValue>;
-type CatchAnimations = Map<string, Animation>;
+type CatchStylesMap = Map<string | number, CatchStylesValue>;
+type CatchAnimations = Map<string | number, Animation>;
 
 export const FLIPSContext = React.createContext<FLIPSContext>({
   catchStyles: new Map(),

@@ -15,7 +15,7 @@ import createAnimation from '../util/createAnimation';
 
 interface TransitusFLIP {
   children: React.ReactElement;
-  flipId: string;
+  flipId: string | number;
 }
 
 const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {

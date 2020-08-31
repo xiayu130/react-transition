@@ -4,7 +4,7 @@ const createAnimation = (
   options: KeyframeAnimationOptions,
 ): Animation => {
   const effect = new KeyframeEffect(ele, keyframes, options);
-  return effect;
+  return new Animation(effect, document.timeline);
 };
 
 export default createAnimation;
