@@ -52,20 +52,26 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
         const catchRect = catchStyles.get(FLIPID.current);
         const x = getX(catchRect?.rect as DOMRect, nextRect);
         const y = getY(catchRect?.rect as DOMRect, nextRect);
-        const w;
-        const h;
+        // 宽高的动画，使用scale实现
+        const w = getW(catchRect?.rect as DOMRect, nextRect);
+        const h = getH(catchRect?.rect as DOMRect, nextRect);
         // 更新缓存
         catchStyles.set(FLIPID.current, {
           rect: nextRect,
         });
         const keyframes: Keyframe[] = [
           {
-            transform: `translate(${x}, ${y})`,
+            transform: `translate(${x}, ${y}) scaleX(${w}) scaleY(${h})`,
           },
           {
-            transform: `translate(0, 0)`,
+            transform: `translate(0, 0) scaleX(1) scaleY(1)`,
           },
         ];
+
+        // 如果没有发生变化则不进行操作
+        if (x === 0 && y === 0 && w === 1 && h === 1) {
+          return;
+        }
       }
     }
   });
