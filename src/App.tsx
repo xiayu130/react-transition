@@ -1,26 +1,15 @@
 import React, {
   useState,
 } from 'react';
-import TransitusQueue from './components/TransitusQueue';
-import Transitus from './components/Transitus';
+import TransitusFLIP from './components/TransitusFLIP';
 
 function App() {
 
-  const [list, setList] = useState<any[]>(['1', '2'])
-
   return (
     <div className="App">
-      <TransitusQueue>
-        {
-          list && list.map((li, i) => (
-            <Transitus
-              key={i}
-            >
-              <div>{ li }</div>
-            </Transitus>
-          ))
-        }
-      </TransitusQueue>
+      <TransitusFLIP>
+        <div>123</div>
+      </TransitusFLIP>
     </div>
   );
 }
