@@ -1,7 +1,10 @@
 import React, {
   useState,
   useRef,
+  useLayoutEffect,
 } from 'react';
+
+type Rect = DOMRect | ClientRect;
 
 interface TransitusFLIPS {
 }
@@ -11,7 +14,10 @@ interface FLIPSContext {
   catchAnimations: CatchAnimations;
 }
 
-type CatchStylesValue = DOMRect | ClientRect;
+interface CatchStylesValue {
+  rect: Rect;
+}
+
 type CatchStylesMap = Map<string, CatchStylesValue>;
 type CatchAnimations = Map<string, Animation>;
 
