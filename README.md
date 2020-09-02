@@ -1,5 +1,5 @@
 
-## ShadowPlay
+## React Transition
 
 React动画组件
 
@@ -13,7 +13,7 @@ React动画组件
 
 ### 预览
 
-## TransitionGroup
+## Transitions
 
 参数 | 说明 | 类型 | 默认值
 ---|---|---|---
@@ -33,7 +33,7 @@ React动画组件
 
 ### 预览
 
-## TransitionFLIP
+## TransitionFLIP & TransitionFLIPS
 
 参数 | 说明 | 类型 | 默认值
 ---|---|---|---
