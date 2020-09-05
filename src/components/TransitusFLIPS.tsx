@@ -63,8 +63,6 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
     }
   });
 
-
-
   if (wrap) {
     const wrapChildren = React.createElement(wrap, {
       className: wrapClassName,
