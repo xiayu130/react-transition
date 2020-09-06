@@ -107,7 +107,8 @@ const FLIP: React.FC<FLIP> = (props) => {
           _isReady: true,
           _ele: flipEle,
         });
-        register();
+        catchAnimations.get(FLIPID.current)?.animation.play();
+        // register();
       }
     }
   });
@@ -120,6 +121,7 @@ const FLIP: React.FC<FLIP> = (props) => {
     <Transitus
       animation={(props as any).animation}
       onLeave={(props as any).onLeave}
+      duration={2000}
     >
       { child }
     </Transitus>
