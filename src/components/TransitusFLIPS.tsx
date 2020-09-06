@@ -17,6 +17,7 @@ interface TransitusFLIPS {
 interface FLIPSContext {
   catchStyles: CatchStylesMap;
   catchAnimations: CatchAnimations;
+  updateCatchAnimations: CatchAnimations;
   animationOption: KeyframeAnimationOptions;
 }
 
@@ -30,6 +31,7 @@ type CatchAnimations = Map<string | number, Animation>;
 export const FLIPSContext = React.createContext<FLIPSContext>({
   catchStyles: new Map(),
   catchAnimations: new Map(),
+  updateCatchAnimations: new Map(),
   animationOption: {},
 });
 
@@ -47,6 +49,7 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
 
   const catchStyles = useRef<CatchStylesMap>(new Map()).current;
   const catchAnimations = useRef<CatchAnimations>(new Map()).current;
+  const updateCatchAnimations = useRef<CatchAnimations>(new Map()).current;
   const animationOption: KeyframeAnimationOptions = {
     delay,
     duration,
@@ -55,11 +58,12 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
   };
 
   useLayoutEffect(() => {
-    if (catchAnimations.size > 0) {
-      const values = catchAnimations.values();
+    if (updateCatchAnimations.size > 0) {
+      const values = updateCatchAnimations.values();
       for (const value of values) {
         value.play();
       }
+      updateCatchAnimations.clear();
     }
   });
 
@@ -73,6 +77,7 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
         catchStyles,
         catchAnimations,
         animationOption,
+        updateCatchAnimations,
       }}>
         { wrapChildren }
       </FLIPSContext.Provider>
@@ -84,6 +89,7 @@ const TransitusFLIPS: React.FC<TransitusFLIPS> = (props) => {
       catchStyles,
       catchAnimations,
       animationOption,
+      updateCatchAnimations,
     }}>
       { children }
     </FLIPSContext.Provider>

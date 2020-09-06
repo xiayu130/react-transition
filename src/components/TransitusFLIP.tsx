@@ -26,6 +26,7 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
   const {
     catchStyles,
     catchAnimations,
+    updateCatchAnimations,
     animationOption,
   } = useContext(FLIPSContext);
 
@@ -98,6 +99,7 @@ const TransitusFLIP: React.FC<TransitusFLIP> = (props) => {
         const animationOptions: KeyframeAnimationOptions = animationOption;
         const animation = createAnimation(flipEle, animationKeyframes, animationOptions);
         catchAnimations.set(FLIPID.current, animation);
+        updateCatchAnimations.set(FLIPID.current, animation);
       }
     }
   });
