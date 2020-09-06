@@ -16,6 +16,7 @@ interface TransitusQueue {
   enter?: boolean;
   leave?: boolean;
   wrap?: string;
+  wrapClassName?: string;
 }
 
 export type ChildrenMap = {
@@ -40,11 +41,10 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
     enter,
     leave,
     appear,
-    wrap,
+    wrap = '',
+    wrapClassName = '',
   } = props;
 
-  // 合并前一个propsMap，和当前的propsMap，需要完成动画后
-  // 再对Leave状态的内容做删除的操作
   const mergeMap = (prev: ChildrenMap, next: ChildrenMap): ChildrenMap => {
     prev = prev || {};
     next = next || {};
@@ -195,7 +195,17 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
   const childNode = Object.values(children);
 
   if (wrap) {
-    return React.createElement(wrap, {}, childNode)
+    const wrapChildNode = React.createElement(wrap, {
+      className: wrapClassName,
+    }, childNode);
+
+    return (
+      <TransitusQueueContext.Provider value={{
+        _initStatus: STATUS['UNMOUNTED'],
+      }}>
+        { wrapChildNode }
+      </TransitusQueueContext.Provider>
+    );
   }
 
   return (
