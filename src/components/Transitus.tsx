@@ -29,7 +29,7 @@ interface TransitusDisplay {
   leave: React.CSSProperties;
 }
 
-interface TransitionStyles {
+export interface TransitionStyles {
   enter?: React.CSSProperties;
   entering?: React.CSSProperties;
   leave?: React.CSSProperties;
