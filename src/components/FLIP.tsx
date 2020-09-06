@@ -4,8 +4,7 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from 'react';
-import Transitus from './Transitus';
-import { FLIPSContext } from './TransitusFLIPSQueue';
+import { FLIPSContext } from './FLIPS';
 import getRect from '../util/getReact';
 import getX from '../util/getX';
 import getY from '../util/getY';
@@ -27,8 +26,8 @@ const FLIP: React.FC<FLIP> = (props) => {
   const {
     catchStyles,
     catchAnimations,
+    updateCatchAnimations,
     animationOption,
-    register,
   } = useContext(FLIPSContext);
 
   const selfRef = useRef<HTMLElement>(null);
@@ -41,12 +40,12 @@ const FLIP: React.FC<FLIP> = (props) => {
     const catchAnimation = catchAnimations.get(FLIPID.current);
     if (flipEle && catchAnimation) {
       // 正在运行动画
-      if (catchAnimation.animation.playState === 'running') {
+      if (catchAnimation.playState === 'running') {
         catchStyles.set(FLIPID.current, {
           rect: getRect(flipEle),
         });
         // 结束当前动画
-        catchAnimation.animation.finish();
+        catchAnimation.finish();
       }
     }
   }
@@ -84,9 +83,6 @@ const FLIP: React.FC<FLIP> = (props) => {
 
         // 如果没有发生变化则不进行操作
         if (x === 0 && y === 0 && w === 1 && h === 1) {
-          if (catchAnimations.has(FLIPID.current)) {
-            catchAnimations.delete(FLIPID.current);
-          }
           return;
         }
 
@@ -102,30 +98,15 @@ const FLIP: React.FC<FLIP> = (props) => {
         // Web Animation 的配置
         const animationOptions: KeyframeAnimationOptions = animationOption;
         const animation = createAnimation(flipEle, animationKeyframes, animationOptions);
-        catchAnimations.set(FLIPID.current, {
-          animation,
-          _isReady: true,
-          _ele: flipEle,
-        });
-        catchAnimations.get(FLIPID.current)?.animation.play();
-        // register();
+        catchAnimations.set(FLIPID.current, animation);
+        updateCatchAnimations.set(FLIPID.current, animation);
       }
     }
   });
 
-  const child =  React.cloneElement(React.Children.only(children), {
+  return React.cloneElement(React.Children.only(children), {
     ref: selfRef
   });
-
-  return (
-    <Transitus
-      animation={(props as any).animation}
-      onLeave={(props as any).onLeave}
-      duration={2000}
-    >
-      { child }
-    </Transitus>
-  )
 };
 
 export default FLIP;
