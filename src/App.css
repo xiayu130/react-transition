@@ -1,17 +1,136 @@
-.box {
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+  vertical-align: baseline;
+  box-sizing: border-box;
+  user-select: none;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.App {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  padding: 50px;
+}
+
+.matrix {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
   flex-wrap: wrap;
-  width: 1200px;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 50px;
 }
 
-.box-item {
-  width: 50px;
-  height: 50px;
+.matrix-item {
+  width: 90px;
+  height: 90px;
+  margin-right: 10px;
+  margin-bottom: 10px;
   text-align: center;
-  line-height: 50px;
-  border: 1px solid #000;
-  box-sizing: border-box;
-  margin-bottom: 20px;
+  line-height: 90px;
+  color: #fff;
+  background-color: #ff9800;
+  border-radius: 4px;
+}
+
+.flip {
+  width: 500px;
+  height: auto;
+}
+
+.flip-buttons {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  margin-bottom: 30px;
+}
+
+.flip-button {
+  width: 91px;
+  height: 36px;
+  font-size: 14px;
+  line-height: 36px;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+  border-radius: 4px;
+}
+
+.flip-button-random {
+  background-color: #2196f3;
+  margin-right: 10px;
+}
+
+.flip-button-add {
+  background-color: #4caf50;
+}
+
+.flip-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  width: 100%;
+  height: 56px;
+  font-size: 16px;
+  line-height: 40px;
+  color: #fff;
+  background-color: #29b6f6;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.flip-list-remove {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ffe082;
+  cursor: pointer;
 }
