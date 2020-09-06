@@ -139,6 +139,7 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
   ): ChildrenMap => {
     return getMap(children, (child) => {
       return React.cloneElement(child as React.ReactElement, {
+        _duration: inOutDuration,
         _transitionStyles: transitionStyles,
         _animation: true,
         _onLeave: () => {
