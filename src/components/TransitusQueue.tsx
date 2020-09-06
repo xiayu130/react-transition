@@ -18,7 +18,7 @@ interface TransitusQueue {
   wrap?: string;
 }
 
-type ChildrenMap = {
+export type ChildrenMap = {
   [key: string]: React.ReactNode
 };
 
@@ -200,11 +200,11 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
 
   return (
     <TransitusQueueContext.Provider value={{
-      _initStatus: 'unmounted' as STATUS,
+      _initStatus: STATUS['UNMOUNTED'],
     }}>
       { childNode }
     </TransitusQueueContext.Provider>
-  )
+  );
 }
 
 export default TransitusQueue;
