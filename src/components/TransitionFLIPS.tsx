@@ -182,12 +182,10 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
           _animation: false,
         });
       } else if (isNeverChange) {
-        children[key] = child;
-
         children[key] = React.cloneElement(child, {
           _animation: prevProps._animation,
           _duration: prevProps._duration,
-          __transitionStyles: prevProps._transitionStyles,
+          _transitionStyles: prevProps._transitionStyles,
           _onLeave: () => {
             const key = (child as React.ReactElement).key || '';
             handleLeave(key);
