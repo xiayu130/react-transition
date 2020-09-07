@@ -25,24 +25,26 @@ const shuffle = function shuffle(array: any[]) {
 function App() {
 
   const [list, setList] = useState<ListItem[]>([{
-    name: '西尔莎·罗南',
-    id: uuid(),
-  }, {
-    name: '艾玛·沃特森',
-    id: uuid(),
-  }, {
-    name: '詹妮弗·劳伦斯',
-    id: uuid(),
-  }, {
-    name: '安妮·海瑟薇',
-    id: uuid(),
-  }, {
-    name: '麦肯吉·弗依',
-    id: uuid(),
-  }, {
-    name: '玛格特·罗比',
-    id: uuid(),
-  }]);
+      name: '西尔莎·罗南',
+      id: uuid(),
+    }, {
+      name: '艾玛·沃特森',
+      id: uuid(),
+    },
+    {
+      name: '詹妮弗·劳伦斯',
+      id: uuid(),
+    }, {
+      name: '安妮·海瑟薇',
+      id: uuid(),
+    }, {
+      name: '麦肯吉·弗依',
+      id: uuid(),
+    }, {
+      name: '玛格特·罗比',
+      id: uuid(),
+    }
+  ]);
   const [matrix, setMatrix] = useState([1, 2, 3, 4])
 
   useEffect(() => {
@@ -79,17 +81,16 @@ function App() {
 
   return (
     <div className="App">
-      {/* <div className="matrix">
-        <FLIPS
-          duration={800}
-        >
-          {
-            matrix && matrix.map((m) => (
-              <FLIP key={m} flipId={m}><div className="matrix-item">{ m }</div></FLIP>
-            ))
-          }
-        </FLIPS>
-      </div> */}
+      <TransitionFLIPS
+        duration={800}
+        wrapClassName="matrix"
+      >
+        {
+          matrix && matrix.map((m) => (
+            <TransitionFLIP key={m} flipId={m}><div className="matrix-item">{ m }</div></TransitionFLIP>
+          ))
+        }
+      </TransitionFLIPS>
       <div className="flip">
         <div className="flip-buttons">
           <div
