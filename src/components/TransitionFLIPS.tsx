@@ -56,7 +56,7 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
     inOutDuration = 200,
     easing = 'linear',
     fill = 'both',
-    wrap = '',
+    wrap = 'div',
     wrapClassName = '',
     transitionStyles = {
       entering: { opacity: 1 },
@@ -219,21 +219,9 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
 
   const childNode = Object.values(children);
 
-  if (wrap) {
-    const wrapChildNode = React.createElement(wrap, {
-      className: wrapClassName,
-    }, childNode);
-
-    return (
-      <FLIPSContext.Provider value={{
-        catchStyles,
-        catchAnimations,
-        animationOption,
-      }}>
-        { wrapChildNode }
-      </FLIPSContext.Provider>
-    )
-  }
+  const wrapChildNode = React.createElement(wrap, {
+    className: wrapClassName,
+  }, childNode);
 
   return (
     <FLIPSContext.Provider value={{
@@ -241,7 +229,7 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
       catchAnimations,
       animationOption,
     }}>
-      { childNode }
+      { wrapChildNode }
     </FLIPSContext.Provider>
   );
 }

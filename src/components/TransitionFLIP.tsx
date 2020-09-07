@@ -13,6 +13,7 @@ import getX from '../util/getX';
 import getY from '../util/getY';
 import getW from '../util/getW';
 import getH from '../util/getH';
+import getParent from '../util/getParent';
 import createAnimation from '../util/createAnimation';
 
 export interface TransitionFLIP {
@@ -63,7 +64,12 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
   useEffect(() => {
     const flipEle = selfRef.current;
     if (flipEle) {
+      const parent = getParent(flipEle);
+      const parentRect = getRect(parent);
       const rect = getRect(flipEle);
+      // 基于父级元素的
+      rect.x = parentRect.x - rect.x;
+      rect.y = parentRect.y - rect.y;
       catchStyles.set(FLIPID.current, {
         rect,
       });
@@ -76,10 +82,15 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
     } else {
       const flipEle = selfRef.current;
       if (flipEle) {
-        const nextRect = getRect(flipEle);
         const catchRect = catchStyles.get(FLIPID.current);
-        const x = getX(catchRect?.rect as DOMRect, nextRect);
-        const y = getY(catchRect?.rect as DOMRect, nextRect);
+        const parent = getParent(flipEle);
+        const parentRect = getRect(parent);
+        const nextRect = getRect(flipEle);
+        // 基于父级元素的
+        nextRect.x = parentRect.x - nextRect.x;
+        nextRect.y = parentRect.y - nextRect.y;
+        const x = getX(nextRect, catchRect?.rect as DOMRect);
+        const y = getY(nextRect, catchRect?.rect as DOMRect);
         const w = getW(catchRect?.rect as DOMRect, nextRect);
         const h = getH(catchRect?.rect as DOMRect, nextRect);
         catchStyles.set(FLIPID.current, {
