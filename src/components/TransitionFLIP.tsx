@@ -51,8 +51,14 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
     const catchAnimation = catchAnimations.get(FLIPID.current);
     if (flipEle && catchAnimation) {
       if (catchAnimation.playState === 'running') {
+        const parent = getParent(flipEle);
+        const parentRect = getRect(parent);
+        // 基于父级进行计算
+        const rect = getRect(flipEle);
+        rect.x = parentRect.x - rect.x;
+        rect.y = parentRect.y - rect.y;
         catchStyles.set(FLIPID.current, {
-          rect: getRect(flipEle),
+          rect,
         });
         catchAnimation.finish();
       }
