@@ -42,4 +42,6 @@ React动画组件
 - [x] FLIP滚动条的问题(基于父级的parentNode)进行计算。
 - [ ] 优化父级元素的api
 - [ ] bug
+- [ ] stagger效果的实现
+- [ ] 支持更多样式的变化
 
