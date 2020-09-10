@@ -49,6 +49,7 @@ export interface TransitusProps {
   timingFunction?: (string & {}) | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "ease" | "ease-in" | "ease-in-out" | "ease-out" | "step-end" | "step-start" | "linear"; // 动画函数
   transitionStyles?: TransitionStyles; // 过渡的样式
   onLeave?: () => void;
+  onEnter?: () => void;
 }
 
 export enum STATUS {
@@ -79,6 +80,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       leave: { opacity: 0 },
     },
     onLeave = noop,
+    onEnter = noop,
   } = props;
 
   const { register, animations } = useContext(TransitusContext);
@@ -216,6 +218,11 @@ const Transitus: React.FC<TransitusProps> = (props) => {
         // 暴露钩子的目标在下一个版本实现
         if (!animation && !firstMount.current) {
           onLeave();
+        }
+        break;
+      case STATUS['ENTER']:
+        if (animation) {
+          onEnter();
         }
         break;
     }
