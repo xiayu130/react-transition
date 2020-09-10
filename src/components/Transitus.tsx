@@ -297,21 +297,20 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const transitionStyle = {
     transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction} ${delay}ms`,
   };
+  const prevStyles = children?.props?.style || {};
   statusStyles = {
+    ...prevStyles,
     ...statusStyles,
     ...transitionStyle,
   };
-
   if (status === STATUS['ENTER']) {
     if (statusStyles['transition']) {
       delete statusStyles['transition'];
     }
   }
-  const prevStyles = children?.props?.style || {};
 
   return React.cloneElement(React.Children.only(children), {
     style: {
-      ...prevStyles,
       ...statusStyles,
       ...displayStyles,
     },
