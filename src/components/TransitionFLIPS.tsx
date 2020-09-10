@@ -18,6 +18,11 @@ import {
 
 type Rect = DOMRect | ClientRect;
 
+interface CatchStylesValue {
+  rect: Rect;
+  styles: CSSStyleDeclaration,
+}
+
 interface FLIPSContext {
   catchStyles: CatchStylesMap;
   catchAnimations: CatchAnimations;
@@ -26,10 +31,6 @@ interface FLIPSContext {
 
 type CatchStylesMap = Map<string | number, CatchStylesValue>;
 type CatchAnimations = Map<string | number, Animation>;
-
-interface CatchStylesValue {
-  rect: Rect;
-}
 
 export const FLIPSContext = React.createContext<FLIPSContext>({
   catchStyles: new Map(),
@@ -55,7 +56,7 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
     duration = 200,
     inOutDuration = 200,
     easing = 'linear',
-    fill = 'both',
+    fill = 'auto',
     wrap = 'div',
     wrapClassName = '',
     transitionStyles = {
