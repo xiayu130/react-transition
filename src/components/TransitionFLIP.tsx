@@ -141,6 +141,22 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
     <Transitus
       animation={animation}
       onLeave={onLeave}
+      onEnter={() => {
+        // 入场完成后强制更新一次缓存
+        const flipEle = selfRef.current;
+        if (flipEle) {
+          const parent = getParent(flipEle);
+          const parentRect = getRect(parent);
+          const rect = getRect(flipEle);
+          const styles = getStyles(flipEle);
+          rect.x = parentRect.x - rect.x;
+          rect.y = parentRect.y - rect.y;
+          catchStyles.set(FLIPID.current, {
+            rect,
+            styles,
+          });
+        }
+      }}
       duration={duration}
       transitionStyles={transitionStyles}
     >
