@@ -297,15 +297,14 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const transitionStyle = {
     transition: `all ${animation ? duration.enter : duration.leave}ms ${timingFunction} ${delay}ms`,
   };
-  if (status !== STATUS['ENTER']) {
-    statusStyles = {
-      ...statusStyles,
-      ...transitionStyle,
-    }
-  } else {
-    statusStyles = {
-      ...statusStyles,
-      transition: 'none',
+  statusStyles = {
+    ...statusStyles,
+    ...transitionStyle,
+  };
+
+  if (status === STATUS['ENTER']) {
+    if (statusStyles['transition']) {
+      delete statusStyles['transition'];
     }
   }
   const prevStyles = children?.props?.style || {};
