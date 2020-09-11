@@ -3,6 +3,8 @@
 
 React动画组件
 
+## TransitionFLIPS
+
 组件参数 | 说明 | 类型 | 默认值
 ---|---|---|---
 duration | flip动画过渡的时间 | number | 200ms
