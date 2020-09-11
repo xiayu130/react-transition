@@ -41,6 +41,7 @@ export const FLIPSContext = React.createContext<FLIPSContext>({
 interface TransitionFLIPS {
   delay?: number;
   duration?: number;
+  inOut?: boolean;
   inOutDuration?: number;
   easing?: string;
   fill?: 'auto' | 'backwards' | 'both' | 'forwards' | 'none' | undefined;
@@ -55,6 +56,7 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
     delay = 0,
     duration = 200,
     inOutDuration = 200,
+    inOut = false,
     easing = 'linear',
     fill = 'auto',
     wrap = 'div',
