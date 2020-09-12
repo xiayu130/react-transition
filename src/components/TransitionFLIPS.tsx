@@ -41,7 +41,6 @@ export const FLIPSContext = React.createContext<FLIPSContext>({
 interface TransitionFLIPS {
   delay?: number;
   duration?: number;
-  inOut?: boolean;
   inOutDuration?: number;
   easing?: string;
   fill?: 'auto' | 'backwards' | 'both' | 'forwards' | 'none' | undefined;
@@ -56,7 +55,6 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
     delay = 0,
     duration = 200,
     inOutDuration = 200,
-    inOut = false,
     easing = 'linear',
     fill = 'auto',
     wrap = 'div',
@@ -142,7 +140,6 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
   ): ChildrenMap => {
     return getMap(children, (child) => {
       return React.cloneElement(child as React.ReactElement, {
-        inOut,
         _duration: inOutDuration,
         _transitionStyles: transitionStyles,
         _animation: true,
@@ -173,7 +170,6 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
       const prevProps = ((prevChildrenMap[key] as React.ReactElement)?.props as TransitionFLIP);
       if (isNew) {
         children[key] = React.cloneElement(child, {
-          inOut,
           _transitionStyles: transitionStyles,
           _duration: inOutDuration,
           _animation: true,
@@ -188,7 +184,6 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
         });
       } else if (isNeverChange) {
         children[key] = React.cloneElement(child, {
-          inOut,
           _animation: prevProps._animation,
           _duration: prevProps._duration,
           _transitionStyles: prevProps._transitionStyles,
