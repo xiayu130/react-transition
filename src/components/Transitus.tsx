@@ -148,11 +148,12 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
-      // if (isObj(display) && display.enter) {
-      //   setDisplayStyles({
-      //     ...display.enter,
-      //   });
-      // }
+      // 入场动画开始时，需要先将其设置为display: block
+      if (isObj(display) && display.enter) {
+        setDisplayStyles({
+          ...display.enter,
+        });
+      }
       if (
         prevStatus.current === STATUS['UNMOUNTED']
       ) {
@@ -162,9 +163,13 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           prevStatus.current = null;
         });
       } else {
-        handleTransitionTime(16, () => {
+        if (isObj(display) && display.enter) {
+          handleTransitionTime(16, () => {
+            setStatus(STATUS['ENTERING']);
+          });
+        } else {
           setStatus(STATUS['ENTERING']);
-        });
+        }
       }
     }
   };
@@ -224,11 +229,11 @@ const Transitus: React.FC<TransitusProps> = (props) => {
           // 第一次不触发onLeave的钩子
           onLeave();
         }
-        // if (isObj(display) && display.leave) {
-        //   setDisplayStyles({
-        //     ...display.leave,
-        //   });
-        // }
+        if (isObj(display) && display.leave) {
+          setDisplayStyles({
+            ...display.leave,
+          });
+        }
         break;
       case STATUS['ENTER']:
         if (animation) {
