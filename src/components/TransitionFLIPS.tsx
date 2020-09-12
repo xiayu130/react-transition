@@ -5,13 +5,13 @@ import React, {
 } from 'react';
 import {
   ChildrenMap
-} from './TransitusQueue';
+} from './TransitionQueue';
 import {
   isFunc,
 } from '../util/checkType';
 import {
   TransitionStyles,
-} from './Transitus';
+} from './Transition';
 import {
   TransitionFLIP
 } from './TransitionFLIP';

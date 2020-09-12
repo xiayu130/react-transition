@@ -4,9 +4,9 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from 'react';
-import Transitus, {
+import Transition, {
   TransitionStyles
-} from './Transitus';
+} from './Transition';
 import { FLIPSContext } from './TransitionFLIPS';
 import getRect from '../util/getReact';
 import getX from '../util/getX';
@@ -138,7 +138,7 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
   });
 
   return (
-    <Transitus
+    <Transition
       animation={animation}
       onLeave={onLeave}
       onEnter={() => {
@@ -161,7 +161,7 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
       transitionStyles={transitionStyles}
     >
       { child }
-    </Transitus>
+    </Transition>
   );
 };
 

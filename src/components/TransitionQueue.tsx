@@ -7,11 +7,11 @@ import {
   isFunc,
 } from '../util/checkType';
 import {
-  TransitusProps,
+  TransitionProps,
   STATUS,
-} from './Transitus';
+} from './Transition';
 
-interface TransitusQueue {
+interface TransitionQueue {
   appear?: boolean;
   enter?: boolean;
   leave?: boolean;
@@ -30,11 +30,11 @@ function getProps<T>(p1: T, p2: T): T {
   return p1;
 }
 
-export const TransitusQueueContext = React.createContext({} as {
+export const TransitionQueueContext = React.createContext({} as {
   _initStatus: STATUS,
 });
 
-const TransitusQueue: React.FC<TransitusQueue> = (props) => {
+const TransitionQueue: React.FC<TransitionQueue> = (props) => {
 
   const {
     children: _children,
@@ -107,7 +107,7 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
     children: React.ReactNode,
   ): ChildrenMap => {
     return getMap(children, (child) => {
-      const props = ((child as React.ReactElement)?.props as TransitusProps);
+      const props = ((child as React.ReactElement)?.props as TransitionProps);
       return React.cloneElement(child as React.ReactElement, {
         animation: true,
         appear: getProps(appear, props.appear),
@@ -137,8 +137,8 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
       const isNew = hasKeyByNew && !hasKeyByPrev;
       const isDelete = !hasKeyByNew && hasKeyByPrev;
       const isNeverChange = hasKeyByNew && hasKeyByPrev;
-      const prevProps = ((prevChildrenMap[key] as React.ReactElement)?.props as TransitusProps);
-      const nextProps = ((nextChildrenMap[key] as React.ReactElement)?.props as TransitusProps);
+      const prevProps = ((prevChildrenMap[key] as React.ReactElement)?.props as TransitionProps);
+      const nextProps = ((nextChildrenMap[key] as React.ReactElement)?.props as TransitionProps);
       if (isNew) {
         children[key] = React.cloneElement(child, {
           animation: true,
@@ -200,21 +200,21 @@ const TransitusQueue: React.FC<TransitusQueue> = (props) => {
     }, childNode);
 
     return (
-      <TransitusQueueContext.Provider value={{
+      <TransitionQueueContext.Provider value={{
         _initStatus: STATUS['UNMOUNTED'],
       }}>
         { wrapChildNode }
-      </TransitusQueueContext.Provider>
+      </TransitionQueueContext.Provider>
     );
   }
 
   return (
-    <TransitusQueueContext.Provider value={{
+    <TransitionQueueContext.Provider value={{
       _initStatus: STATUS['UNMOUNTED'],
     }}>
       { childNode }
-    </TransitusQueueContext.Provider>
+    </TransitionQueueContext.Provider>
   );
 }
 
-export default TransitusQueue;
+export default TransitionQueue;

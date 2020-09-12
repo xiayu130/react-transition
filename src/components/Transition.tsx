@@ -11,19 +11,19 @@ import {
   isUnd,
   isFunc,
 } from '../util/checkType';
-import { TransitusContext } from './TransitusGroup';
-import { TransitusQueueContext } from './TransitusQueue';
+import { TransitionContext } from './TransitionGroup';
+import { TransitionQueueContext } from './TransitionQueue';
 import { v4 as uuid } from 'uuid';
 
 const defaultDuration = 200;
 const defaultDelay = 0;
 
-interface TransitusDuration {
+interface TransitionDuration {
   enter: number;
   leave: number;
 }
 
-interface TransitusDisplay {
+interface TransitionDisplay {
   enter: React.CSSProperties;
   leave: React.CSSProperties;
 }
@@ -35,9 +35,9 @@ export interface TransitionStyles {
   leaveing?: React.CSSProperties;
 }
 
-export interface TransitusProps {
-  display?: boolean | TransitusDisplay;
-  duration?: number | TransitusDuration; // 动画持续时间
+export interface TransitionProps {
+  display?: boolean | TransitionDisplay;
+  duration?: number | TransitionDuration; // 动画持续时间
   delay?: number; // 动画开启前的延迟时间
   animation?: boolean; // 动画的开关
   children: React.ReactElement;
@@ -60,7 +60,7 @@ export enum STATUS {
 }
 
 // TODO: 需要完善类型
-const Transitus: React.FC<TransitusProps> = (props) => {
+const Transition: React.FC<TransitionProps> = (props) => {
   const {
     display = false,
     timingFunction = 'ease-in-out',
@@ -82,8 +82,8 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     onEnter = noop,
   } = props;
 
-  const { register, animations } = useContext(TransitusContext);
-  const { _initStatus } = useContext(TransitusQueueContext);
+  const { register, animations } = useContext(TransitionContext);
+  const { _initStatus } = useContext(TransitionQueueContext);
   const [animation, setAnimation] = useState(_animation);
   const firstMount = useRef(true);
   const nextStatus = useRef<null | STATUS>(null);
@@ -111,7 +111,7 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
     return initStatus;
   });
-  const [duration] = useState<TransitusDuration>(() => {
+  const [duration] = useState<TransitionDuration>(() => {
     let enter: number = defaultDuration;
     let leave: number = defaultDuration;
     if (isObj(_duration)) {
@@ -329,4 +329,4 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   })
 };
 
-export default Transitus;
+export default Transition;
