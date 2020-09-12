@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useContext,
 } from 'react';
-import useDidMount from '../util/useDidMount';
 import noop from '../util/noop';
 import {
   isObj,
@@ -130,6 +129,20 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   const [delay, setDelay] = useState<number>(_delay);
   const [displayStyles, setDisplayStyles] = useState<React.CSSProperties>({});
 
+  const handleTransitionTime = (
+    time: number,
+    callback: Function,
+  ) => {
+    let timer = 0;
+    callback = isFunc(callback) ? callback : noop;
+    if (isNum(time)) {
+      timer = setTimeout(callback, time);
+    } else {
+      timer = setTimeout(callback, 0);
+    }
+    return timer;
+  }
+
   const handleEnter = () => {
     // 不需要执行入场动画
     if (!enter) {
@@ -159,20 +172,6 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
   };
 
-  const handleTransitionTime = (
-    time: number,
-    callback: Function,
-  ) => {
-    let timer = 0;
-    callback = isFunc(callback) ? callback : noop;
-    if (isNum(time)) {
-      timer = setTimeout(callback, time);
-    } else {
-      timer = setTimeout(callback, 0);
-    }
-    return timer;
-  }
-
   const updateStatus = (
     nextStatus: STATUS | null,
   ): void => {
@@ -190,10 +189,10 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     }
   };
 
-  useDidMount(() => {
+  useEffect(() => {
     register({ ...props, ID: ID.current });
     updateStatus(nextStatus.current);
-  });
+  }, []);
 
   useEffect(() => {
     switch (status) {
