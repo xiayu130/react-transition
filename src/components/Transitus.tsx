@@ -148,17 +148,23 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (!enter) {
       setStatus(STATUS['ENTER']);
     } else {
+      // if (isObj(display) && display.enter) {
+      //   setDisplayStyles({
+      //     ...display.enter,
+      //   });
+      // }
       if (
-        prevStatus.current === STATUS['UNMOUNTED'] ||
-        isObj(display)
+        prevStatus.current === STATUS['UNMOUNTED']
       ) {
-        // 需要等待dom渲染完毕
+        // 如果之前的状态为UNMOUNTED，或者之前的style为display：none 需要等待dom渲染完毕
         handleTransitionTime(16, () => {
           setStatus(STATUS['ENTERING']);
           prevStatus.current = null;
         });
       } else {
-        setStatus(STATUS['ENTERING']);
+        handleTransitionTime(16, () => {
+          setStatus(STATUS['ENTERING']);
+        });
       }
     }
   };
@@ -197,27 +203,32 @@ const Transitus: React.FC<TransitusProps> = (props) => {
   useEffect(() => {
     switch (status) {
       case STATUS['ENTERING']:
-        timer.current = handleTransitionTime(duration.enter, () => {
+        let milliseconds = 0;
+        if (!unmount) {
+          milliseconds = duration.enter + delay;
+        } else {
+          milliseconds = duration.enter;
+        }
+        milliseconds = duration.enter + delay;
+        timer.current = handleTransitionTime(milliseconds, () => {
           setStatus(STATUS['ENTER']);
         });
         break;
       case STATUS['LEAVEING']:
-        timer.current = handleTransitionTime(duration.leave, () => {
-          if (unmount) {
-            handleTransitionTime(delay, () => {
-              setStatus(STATUS['LEAVE']);
-            });
-          } else {
-            setStatus(STATUS['LEAVE']);
-          }
+        timer.current = handleTransitionTime(duration.leave + delay, () => {
+          setStatus(STATUS['LEAVE']);
         });
         break;
       case STATUS['LEAVE']:
-        // 主要提供给TransitusQueue组件使用的钩子，暂时不对外暴露
-        // 暴露钩子的目标在下一个版本实现
         if (!animation && !firstMount.current) {
+          // 第一次不触发onLeave的钩子
           onLeave();
         }
+        // if (isObj(display) && display.leave) {
+        //   setDisplayStyles({
+        //     ...display.leave,
+        //   });
+        // }
         break;
       case STATUS['ENTER']:
         if (animation) {
@@ -234,23 +245,9 @@ const Transitus: React.FC<TransitusProps> = (props) => {
     if (animation) {
       // 为了在UNMOUNTED时开启动画效果，需要先将状态设置为LEAVE
       if (status === STATUS['UNMOUNTED']) {
-        prevStatus.current = STATUS['UNMOUNTED'];
-        setStatus(STATUS['LEAVE']);
-      } else if (status === STATUS['LEAVE'] && isObj(display)) {
-        setDisplayStyles({
-          ...display.enter,
-        });
-      }
-    } else {
-      if (
-        status === STATUS['LEAVE'] &&
-        isObj(display) &&
-        !firstMount.current
-      ) {
-        handleTransitionTime(duration.leave + delay, () => {
-          setDisplayStyles({
-            ...display.leave,
-          });
+        handleTransitionTime(delay, () => {
+          prevStatus.current = STATUS['UNMOUNTED'];
+          setStatus(STATUS['LEAVE']);
         });
       }
     }
@@ -262,7 +259,11 @@ const Transitus: React.FC<TransitusProps> = (props) => {
       if (animation) {
         if (
           status !== STATUS['ENTERING'] &&
-          status !== STATUS['ENTER']
+          status !== STATUS['ENTER'] &&
+          (
+            status === STATUS['LEAVE'] ||
+            status === STATUS['LEAVEING']
+          )
         ) {
           nextStatus = STATUS['ENTERING'];
         }
