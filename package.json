@@ -6,9 +6,9 @@
   "typings": "types/index.d.ts",
   "scripts": {
     "clear": "rimraf dist && rimraf types",
-    "build:dist": "cross-env NODE_ENV=production webpack --config build/webpack.config.js",
     "build:declaration": "node script/declaration.js",
-    "build": "npm run clear && npm run build:dist && npm run build:declaration"
+    "build": "npm run clear && npm run build:dist && npm run build:declaration",
+    "build:dist": "cross-env NODE_ENV=production webpack --config build/webpack.min.config.js"
   },
   "keywords": [
     "react",

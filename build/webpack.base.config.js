@@ -1,17 +1,9 @@
 const { resolve } = require('path')
-const webpack = require('webpack')
 
 module.exports = {
 
-  mode: 'production',
-
-  entry: resolve(__dirname, '../src/index'),
-
-  output: {
-    path: resolve(__dirname, '../dist'),
-    filename: '[name].js',
-    library: 'react-flip-transition',
-    libraryTarget: 'umd',
+  entry: {
+    'main': resolve(__dirname, '../src/index'),
   },
 
   externals: {
@@ -30,7 +22,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx']
+    extensions: ['.ts', '.tsx', '.js']
   },
 
   module: {
@@ -44,13 +36,4 @@ module.exports = {
       },
     ],
   },
-
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"production"'
-    }),
-    new webpack.SourceMapDevToolPlugin({
-      filename: `[file].map`
-    })
-  ]
 }
