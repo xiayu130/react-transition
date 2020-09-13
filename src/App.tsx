@@ -1,10 +1,7 @@
 import React, {
   useState,
-  useEffect,
 } from 'react';
 import { v4 as uuid } from 'uuid';
-import FLIP from './components/FLIP';
-import FLIPS from './components/FLIPS';
 import TransitionFLIP from './components/TransitionFLIP';
 import TransitionFLIPS from './components/TransitionFLIPS';
 import calssnames from 'classnames';
@@ -27,36 +24,17 @@ const shuffle = function shuffle(array: any[]) {
 function App() {
 
   const [list, setList] = useState<ListItem[]>([{
-      name: '',
+      name: '1',
       id: uuid(),
     }, {
-      name: '',
+      name: '2',
       id: uuid(),
     },
     {
-      name: '',
-      id: uuid(),
-    }, {
-      name: '',
-      id: uuid(),
-    }, {
-      name: '',
-      id: uuid(),
-    }, {
-      name: '',
+      name: '3',
       id: uuid(),
     }
   ]);
-  const [matrix, setMatrix] = useState([1, 2, 3, 4])
-  const [focused, setFocused] = useState<any>(null);
-
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     setMatrix((pre) => {
-  //       return [...shuffle(shuffle(pre))];
-  //     });
-  //   }, 2000)
-  // }, []);
 
   const random = () => {
     setList((pre) => {
@@ -84,16 +62,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* <TransitionFLIPS
-        duration={800}
-        wrapClassName="matrix"
-      >
-        {
-          matrix && matrix.map((m) => (
-            <TransitionFLIP key={m} flipId={m}><div className="matrix-item">{ m }</div></TransitionFLIP>
-          ))
-        }
-      </TransitionFLIPS> */}
       <div className="flip">
         <div className="flip-buttons">
           <div
@@ -113,62 +81,28 @@ function App() {
         </div>
         <div className="flip-list">
           <TransitionFLIPS
-            duration={500}
-            transitionStyles={{
-              entering: { opacity: 1 },
-              enter: { opacity: 1 },
-              leaveing: { opacity: 0, transform: `translateX(26px)`, },
-              leave: { opacity: 0, transform: `translateX(-26px)` },
-            }}
-            easing="cubic-bezier(.37,.89,.41,1.46)"
+            duration={1200}
           >
             {
               list && list.map((item) => {
-                if (item.id === focused) {
-                  return (
-                    <TransitionFLIP key={item.id} flipId={item.id}>
-                      <div
-                        className={calssnames({
-                          'flip-list-item-active': true,
-                        })}
-                        onClick={() => {
-                          setFocused(null);
+                return (
+                  <TransitionFLIP key={item.id} flipId={item.id}>
+                    <div
+                      className={calssnames({
+                        'flip-list-item': true,
+                      })}
+                    >
+                      <span>{ item.name }</span>
+                      <span
+                        className="flip-list-remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          remove(item.id);
                         }}
-                      >
-                        <span>{ item.name }</span>
-                        <span
-                          className="flip-list-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            remove(item.id);
-                          }}
-                        />
-                      </div>
-                    </TransitionFLIP>
-                  )
-                } else {
-                  return (
-                    <TransitionFLIP key={item.id} flipId={item.id}>
-                      <div
-                        className={calssnames({
-                          'flip-list-item': true,
-                        })}
-                        onClick={() => {
-                          setFocused(item.id)
-                        }}
-                      >
-                        <span>{ item.name }</span>
-                        <span
-                          className="flip-list-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            remove(item.id);
-                          }}
-                        />
-                      </div>
-                    </TransitionFLIP>
-                  )
-                }
+                      />
+                    </div>
+                  </TransitionFLIP>
+                )
               })
             }
           </TransitionFLIPS>
