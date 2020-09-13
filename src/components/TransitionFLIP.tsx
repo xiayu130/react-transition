@@ -50,8 +50,14 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
   const force = () => {
     const flipEle = selfRef.current;
     const catchAnimation = catchAnimations.get(FLIPID.current);
-    if (flipEle && catchAnimation) {
-      if (catchAnimation.playState === 'running') {
+    if (
+      flipEle &&
+      catchAnimation
+    ) {
+      if (
+        catchAnimation.playState === 'running' &&
+        (catchAnimation as any)._isPlayed
+      ) {
         const parent = getParent(flipEle);
         const parentRect = getRect(parent);
         // 基于父级进行计算
@@ -63,6 +69,7 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
           rect,
           styles,
         });
+        (catchAnimation as any)._isPlayed = false;
         catchAnimation.finish();
       }
     }
@@ -129,6 +136,8 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
         const animation = createAnimation(flipEle, animationKeyframes, animationOptions);
         catchAnimations.set(FLIPID.current, animation);
         animation.play();
+        // _isPlayed 标示符，解决多次force的问题
+        (animation as any)._isPlayed = true;
       }
     }
   });
