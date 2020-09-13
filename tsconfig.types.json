@@ -3,10 +3,8 @@
     "jsx": "react",
     "target": "ES6",
     "moduleResolution": "Node",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitAny": true
+    "declaration": true,
+    "outDir": "./types"
   },
   "include": [
     "src"
