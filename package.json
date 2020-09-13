@@ -1,41 +1,59 @@
 {
-  "name": "eandem",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.9.1",
-    "@types/node": "^12.12.54",
-    "@types/react": "^16.9.46",
-    "@types/react-dom": "^16.9.8",
-    "@types/uuid": "^8.3.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.2",
-    "typescript": "^3.7.5",
-    "uuid": "^8.3.0"
-  },
+  "name": "react-flip-transition",
+  "version": "0.0.1",
+  "description": "React flip animation library",
+  "main": "dist/index.js",
+  "typings": "types/index.d.ts",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "clear": "rimraf dist && rimraf types",
+    "build:dist": "cross-env NODE_ENV=production webpack --config build/webpack.config.js",
+    "build:declaration": "node script/declaration.js",
+    "build": "npm run clear && npm run build:dist && npm run build:declaration"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "keywords": [
+    "react",
+    "flip",
+    "animation",
+    "react-component"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peoplesing1832/react-flip-transition"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "author": "Frank Zhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/peoplesing1832/react-flip-transition/issues"
+  },
+  "peerDependencies": {
+    "react": ">=16.13.0",
+    "react-dom": ">=16.13.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
+    "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-react": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "babel-loader": "^8.0.6",
+    "cross-env": "^7.0.2",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "rimraf": "^3.0.2",
+    "shelljs": "^0.8.3",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.8.7",
+    "@types/uuid": "^8.3.0",
+    "uuid": "^8.3.0"
   }
 }
