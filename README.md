@@ -6,22 +6,28 @@ React Flip 动画组件库
 ## react-flip-transition 是什么？
 
 1. 使用WebAnimationAPI实现flip动画队列
-2. 支持自定义入场，出场动画的过渡（无需额外的传递参数，直接变化数据即可完成入场以及出场）
+2. 支持自定义入场，出场动画的过渡。无需额外的传递参数，直接变化数据即可完成入场以及出场动画效果。
 
-## react-flip-transition 工作原理
+## 工作原理
 
 撰写中……
 
-## 使用
+## 安装
 
 ```shell
 
 npm install react-flip-transition
 ```
 
-## 文档
+## 预览
 
-### Transition
+### 网格
+
+### 列表
+
+### 交错效果
+
+## 使用 & 文档
 
 ### TransitionFLIPS
 
@@ -43,10 +49,8 @@ transitionStyles | 入场出场动画的过渡样式 | TransitionStyles | ![tran
 flipId | flip动画元素的唯一Id | string | 必传
 key | flip动画元素的唯一的key | string | 必传
 
-## Demo
-
 ## v0.0.2
 
-1. 支持交错动画
+1. 支持交错动画效果
 2. 解决现有存在的问题
 3. 暴露出更多组件
