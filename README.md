@@ -47,7 +47,7 @@ transitionStyles | 入场出场动画的过渡样式 | TransitionStyles | ![tran
 组件参数 | 说明 | 类型 | 默认值
 ---|---|---|---
 flipId | flip动画元素的唯一Id | string | 必传
-key | flip动画元素的唯一的key | string | 必传
+key | flip动画元素的唯一的key | string | 必传（可以和id设置成一样）
 
 ## v0.0.2
 
