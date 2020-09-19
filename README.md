@@ -10,7 +10,7 @@ React Flip 动画组件库
 
 ## react-flip-transition 工作原理
 
-- [我的掘金专栏，「React」如何在React中优雅的实现动画]()
+撰写中……
 
 ## 使用
 
@@ -41,7 +41,7 @@ transitionStyles | 入场出场动画的过渡样式 | TransitionStyles | ![tran
 组件参数 | 说明 | 类型 | 默认值
 ---|---|---|---
 flipId | flip动画元素的唯一Id | string | 必传
-
+key | flip动画元素的唯一的key | string | 必传
 
 ## Demo
 
@@ -50,8 +50,3 @@ flipId | flip动画元素的唯一Id | string | 必传
 1. 支持交错动画
 2. 解决现有存在的问题
 3. 暴露出更多组件
-
-## 参考
-
-
-
