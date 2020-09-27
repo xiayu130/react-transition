@@ -31,12 +31,8 @@ const Animate: React.FC<AnimateProps> = (props) => {
     timingFunction = 'ease-in-out',
     first = true,
     transitionStyles = {
-      enter: {
-        opacity: 1,
-      },
-      leave: {
-        opacity: 0,
-      },
+      enter: { opacity: 1, },
+      leave: { opacity: 0, },
     },
     children,
   } = props;

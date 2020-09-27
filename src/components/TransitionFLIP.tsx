@@ -143,7 +143,7 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
     }
   });
 
-  const child =  React.cloneElement(React.Children.only(children), {
+  const child = React.cloneElement(React.Children.only(children), {
     ref: selfRef
   });
 
