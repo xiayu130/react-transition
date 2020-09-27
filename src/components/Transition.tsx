@@ -12,9 +12,9 @@ import {
   isUnd,
   isFunc,
 } from '../util/checkType';
+import uuid from '../util/uuid';
 import { TransitionContext } from './TransitionGroup';
 import { TransitionQueueContext } from './TransitionQueue';
-import { v4 as uuid } from 'uuid';
 
 const defaultDuration = 200;
 const defaultDelay = 0;
