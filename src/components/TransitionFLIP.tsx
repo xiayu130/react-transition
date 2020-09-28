@@ -81,6 +81,8 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
   useEffect(() => {
     const flipEle = selfRef.current;
     if (flipEle) {
+      // 由于getRect的强制更新屏幕，所以没有使用unmount的初始状态给
+      // Transition组件，也会有动画效果
       const parent = getParent(flipEle);
       const parentRect = getRect(parent);
       const rect = getRect(flipEle);
