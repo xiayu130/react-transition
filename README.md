@@ -1,29 +1,29 @@
 
 ## React Flip Transition
 
-React Flip 动画组件库
+React Flip animation component library
 
-## react-flip-transition 是什么？
+## what is this
 
-1. 使用WebAnimationAPI实现flip动画队列
-2. 支持自定义入场，出场动画的过渡。无需额外的传递参数，直接变化数据即可完成入场以及出场动画效果。
+1. Use WebAnimationAPI to implement flip animation queue
+2. Support custom entry and exit animation transition. No need to pass additional parameters, directly change the data to complete the entry and exit animation effects.
 
-## 工作原理
+## working principle
 
 https://juejin.im/post/6877773443715203079
 
-## 安装
+## install
 
 ```shell
 
 npm install react-flip-transition
 ```
 
-## 预览
+## preview
 
 - [Demo](http://flip.bengbuzhangyue.xyz/#/)
 
-### 网格
+### matrix
 
 ![网格.gif](https://i.loli.net/2020/09/20/Z3Oo5wTXtYHVxcv.gif)
 
@@ -78,7 +78,7 @@ const Matrix = () => {
 export default Matrix;
 ```
 
-### 列表
+### todo list
 
 ![list.gif](https://i.loli.net/2020/09/20/p2LqHSPvFtA9IaD.gif)
 
@@ -192,11 +192,11 @@ const TodoList = () => {
 export default TodoList;
 ```
 
-### 交错效果
+### staggered
 
 ![staggered.gif](https://i.loli.net/2020/09/20/YQMduc4UaXsFxn2.gif)
 
-## 使用 & 文档
+## use
 
 ### TransitionFLIPS
 
