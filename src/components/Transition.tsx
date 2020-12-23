@@ -30,10 +30,10 @@ interface TransitionDisplay {
 }
 
 export interface TransitionStyles {
-  enter?: React.CSSProperties;
-  entering?: React.CSSProperties;
-  leave?: React.CSSProperties;
-  leaveing?: React.CSSProperties;
+  enter: React.CSSProperties;
+  entering: React.CSSProperties;
+  leave: React.CSSProperties;
+  leaveing: React.CSSProperties;
 }
 
 export interface TransitionProps {
