@@ -230,7 +230,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
           // 第一次不触发onLeave的钩子
           onLeave();
         }
-        if (isObj(display) && display.leave) {
+        if (!animation && isObj(display) && display.leave) {
           setDisplayStyles({
             ...display.leave,
           });
