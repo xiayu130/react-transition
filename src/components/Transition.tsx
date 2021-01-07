@@ -50,6 +50,7 @@ export interface TransitionProps {
   transitionStyles?: TransitionStyles; // 过渡的样式
   onLeave?: () => void;
   onEnter?: () => void;
+  onTransitionEnd?: () => void;
 }
 
 export enum STATUS {
@@ -81,6 +82,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
     },
     onLeave = noop,
     onEnter = noop,
+    onTransitionEnd = noop,
   } = props;
 
   const { register, animations } = useContext(TransitionContext);
@@ -327,6 +329,9 @@ const Transition: React.FC<TransitionProps> = (props) => {
       ...statusStyles,
       ...displayStyles,
     },
+    onTransitionEnd: () => {
+      onTransitionEnd()
+    }
   })
 };
 
