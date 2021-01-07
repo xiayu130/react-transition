@@ -101,8 +101,10 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
     if (firstMount.current) {
       firstMount.current = false;
     } else {
-      const flipEle = selfRef.current;
-      if (flipEle) {
+      const flipEle = selfRef.current
+      // 如果离场（比如删除元素）发生时，直接进入离开动画，flip动画直接过渡到最终状态
+      // Vue我看了官网的Demo也是如此处理的
+      if (flipEle && animation) {
         const catchRect = catchStyles.get(FLIPID.current);
         const pbc = catchRect?.styles.backgroundColor;
         const parent = getParent(flipEle);
