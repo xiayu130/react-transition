@@ -3,7 +3,21 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useContext,
 } from 'react';
+import { TransitionsContext } from './Transitions';
+
+const uuid = (): string => {
+  const buf = new Uint32Array(4);
+  window.crypto.getRandomValues(buf);
+  let idx = -1;
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    idx++;
+    const r = (buf[idx>>3] >> ((idx%8)*4))&15;
+    const v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+};
 
 // unmounted -> leaveed -> entering -> entered -> leaveing -> leaveed -> unmounted
 // unmounted组件卸载状态
@@ -44,7 +58,7 @@ type waitForTransitionStartCallback = (...args: any[]) => any;
 const durationDefaults = 200;
 const delayDefaults = 0;
 
-const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
+const Transition: React.FC<TransitionProps> = (props) => {
   const {
     name = '',
     duration = durationDefaults,
@@ -60,8 +74,13 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
     children,
   } = props;
 
+  // class的前缀
+  const [_name, setName] = useState<string>(name);
+  // 动画的开关
+  const [_animation, setAnimation] = useState<boolean>(animation);
+  // 动画的状态
   const [status, setStatus] = useState<STATUS>(() => {
-    if (animation) {
+    if (_animation) {
       return STATUS['LEAVEED'];
     } else {
       if (unmount) {
@@ -71,13 +90,23 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
       }
     }
   });
+  // 间隔渲染，主要用在一组动画中，默认为0
+  const [interval, setInterval] = useState<number>(0);
   // 是否为初次渲染
   const firstMount = useRef(true);
   // 最初元素的classNames
   const prevClassNames = useRef(children.props.className || '');
   // 最初元素的styles
   const prevStyle = useRef(children.props.style || '');
+  // 当前动画组件的唯一id
+  const id = useRef(uuid());
+  const timers = useRef(new Set<NodeJS.Timeout>([]));
   const rAF = typeof window !== 'undefined' && window.requestAnimationFrame;
+  const {
+    prefix,
+    animations,
+    collection,
+  } = useContext(TransitionsContext);
 
   /**
    * 等待浏览器渲染完成
@@ -97,7 +126,8 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
     duration: number,
     callback: waitForTransitionStartCallback
   ) => {
-    setTimeout(callback, duration);
+    const timer = setTimeout(callback, duration);
+    return timer;
   };
 
   /**
@@ -108,7 +138,7 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
       // 初次渲染时不触发onUnmounted钩子
       onUnmounted();
     }
-    if (animation) {
+    if (_animation) {
       // 如果是STATUS['UNMOUNTED']状态，并且animation为true。
       // 我们需要先将状态设置为STATUS['LEAVEED']态
       setStatus(STATUS['LEAVEED']);
@@ -120,11 +150,17 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
    * 处理STATUS['LEAVEED']状态
    */
   const handleLeaveed = () => {
-    if (animation) {
+    if (_animation) {
       // 如果开关为开，当前是STATUS['LEAVEED']态，我们下一步需要进入到STATUS['ENTERING']态
       // 使用waitForTransitionStart，等待浏览器渲染完成
       waitForTransitionStart(() => {
-        setStatus(STATUS['ENTERING']);
+        // 如果有延迟，需要等待延迟进入ENTERING态
+        let transitionDelay = delay;
+        transitionDelay += interval;
+        const timer = waitTransition(transitionDelay, () => {
+          setStatus(STATUS['ENTERING']);
+        });
+        timers.current.add(timer);
       });
     } else {
       // 触发leaveed的钩子，只有在真正离开的状态才触发，unmounted -> leaveed状态时不触发
@@ -142,16 +178,21 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
   const handleLeaveing = () => {
     // 触发leaveing钩子
     onLeaveing();
-    if (animation) {
+    if (_animation) {
       // 如果开关为开，下一步需要过渡到STATUS['ENTERING']状态
-      setStatus(STATUS['ENTERING']);
+      let transitionDelay = delay;
+      transitionDelay += interval;
+      const timer = waitTransition(transitionDelay, () => {
+        setStatus(STATUS['ENTERING']);
+      });
+      timers.current.add(timer);
     } else {
       // 如果开关为关，下一步需要进入等待过渡完成后进入，STATUS['LEAVEED']状态
       let transitionDuration = typeof duration === 'number' ? duration : duration.leave;
-      transitionDuration += delay;
-      waitTransition(transitionDuration, () => {
+      const timer = waitTransition(transitionDuration, () => {
         setStatus(STATUS['LEAVEED']);
       });
+      timers.current.add(timer);
     }
   };
 
@@ -161,11 +202,16 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
   const handleEntered = () => {
     // 触发onEntered的钩子
     onEntered();
-    if (animation) {
+    if (_animation) {
       // 如果开关为开，不处理
     } else {
       // 如果开关为关，需要进入到['LEAVEING']状态
-      setStatus(STATUS['LEAVEING']);
+      let transitionDelay = delay;
+      transitionDelay += interval;
+      const timer = waitTransition(transitionDelay, () => {
+        setStatus(STATUS['LEAVEING']);
+      });
+      timers.current.add(timer);
     }
   };
 
@@ -175,20 +221,28 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
   const handleEntering = () => {
     // 触发onEntering钩子
     onEntering();
-    if (animation) {
+    if (_animation) {
       // 如果动画开关为开，等待过渡完成后进入STATUS['ENTERED']状态
       let transitionDuration = typeof duration === 'number' ? duration : duration.enter;
-      transitionDuration += delay;
-      waitTransition(transitionDuration, () => {
+      const timer = waitTransition(transitionDuration, () => {
         setStatus(STATUS['ENTERED']);
       });
+      timers.current.add(timer);
     } else {
       // 如果动画开关为关，需要进入到STATUS['LEAVEING']
-      setStatus(STATUS['LEAVEING']);
+      let transitionDelay = delay;
+      transitionDelay += interval;
+      const timer = waitTransition(transitionDelay, () => {
+        setStatus(STATUS['LEAVEING']);
+      });
+      timers.current.add(timer);
     }
   };
 
   useEffect(() => {
+    timers.current.forEach((timer) => {
+      clearTimeout(timer);
+    });
     switch (status) {
       case STATUS['UNMOUNTED']:
         handleUnmounted();
@@ -208,29 +262,59 @@ const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
     }
     // 标记为不是初次渲染
     firstMount.current = false;
-  }, [status, animation]);
+  }, [status, _animation]);
+
+  useEffect(() => {
+    const currentId = id.current;
+    if (animations[currentId]) {
+      const {
+        animation,
+        delay,
+      } = animations[currentId];
+      console.log(animations)
+      setInterval(delay);
+      setAnimation(animation);
+    }
+  }, [animations]);
+
+  useEffect(() => {
+    setAnimation(animation);
+  }, [animation]);
+
+  useEffect(() => {
+    setName(name);
+  }, [name]);
+
+  useEffect(() => {
+    if (collection) {
+      collection.push(id.current);
+    }
+    if (!name && prefix) {
+      setName(prefix);
+    }
+  }, []);
 
   const className = useMemo(() => {
     switch (status) {
       case STATUS['LEAVEED']:
-        return `${name}-leaveed`;
+        return `${_name}-leaveed`;
       case STATUS['LEAVEING']:
-        return `${name}-leaveing`;
+        return `${_name}-leaveing`;
       case STATUS['ENTERED']:
-        return `${name}-entered`;
+        return `${_name}-entered`;
       case STATUS['ENTERING']:
-        return `${name}-entering`;
+        return `${_name}-entering`;
     }
-  }, [status, name]);
+  }, [status, _name]);
 
   const nextStyle = useMemo(() => {
-    if (status === STATUS['LEAVEED'] && leaveDisplayNone && !animation) {
+    if (status === STATUS['LEAVEED'] && leaveDisplayNone && !_animation) {
       return {
         display: 'none',
       };
     }
     return null;
-  }, [leaveDisplayNone, status, animation]);
+  }, [leaveDisplayNone, status, _animation]);
 
   if (status === STATUS['UNMOUNTED']) {
     return null;
