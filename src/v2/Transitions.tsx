@@ -8,7 +8,6 @@ export interface TransitionsProps {
   masterSwitch?: boolean; // 统一的动画开关(会对所有children的animation做设置)
   interval?: number; // 每一个动画之间的时间间隔
   prefix?: string;
-  children: React.ReactElement;
 }
 
 export type Animations = {
@@ -28,7 +27,7 @@ export const TransitionsContext = React.createContext<{
   prefix: '',
 });
 
-const Transitions: React.FC<TransitionsProps> = (props: TransitionsProps) => {
+const Transitions: React.FC<TransitionsProps> = (props) => {
   const {
     masterSwitch = false,
     interval = 200,
