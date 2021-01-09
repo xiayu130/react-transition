@@ -33,6 +33,9 @@ export interface TransitionProps {
   onEntering?: () => void; // 进入entering时的事件
   onLeaveed?: () => void; // 进入leaveed时的事件
   onLeaveing?: () => void; // 进入leaveing时的事件
+  // display的开关，直接在样式中设置display可能会造成过渡失败
+  // 开始display后，LEAVEED时会添加display: none的style
+  leaveDisplayNone?: boolean;
   children: React.ReactElement;
 };
 
@@ -53,6 +56,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
     onEntering = noop,
     onLeaveed = noop,
     onLeaveing = noop,
+    leaveDisplayNone = false,
     children,
   } = props;
 
@@ -71,14 +75,16 @@ const Transition: React.FC<TransitionProps> = (props) => {
   const firstMount = useRef(true);
   // 最初元素的classNames
   const prevClassNames = useRef(children.props.className || '');
+  // 最初元素的styles
+  const prevStyle = useRef(children.props.style || '');
   const rAF = typeof window !== 'undefined' && window.requestAnimationFrame;
-  
+
   /**
    * 等待浏览器渲染完成
    */
   const waitForTransitionStart = rAF ? (callback: waitForTransitionStartCallback) => {
     rAF(() => {
-      rAF(callback); 
+      rAF(callback);
     })
   } : (callback: waitForTransitionStartCallback) => {
     setTimeout(callback, 50);
@@ -215,7 +221,16 @@ const Transition: React.FC<TransitionProps> = (props) => {
       case STATUS['ENTERING']:
         return `${name}-entering`;
     }
-  }, [status]);
+  }, [status, name]);
+
+  const nextStyle = useMemo(() => {
+    if (status === STATUS['LEAVEED'] && leaveDisplayNone && !animation) {
+      return {
+        display: 'none',
+      };
+    }
+    return null;
+  }, [leaveDisplayNone, status, animation]);
 
   if (status === STATUS['UNMOUNTED']) {
     return null;
@@ -224,9 +239,13 @@ const Transition: React.FC<TransitionProps> = (props) => {
   const nextClassName = prevClassNames.current ?
     `${className} ${prevClassNames.current}`
     : `${prevClassNames.current}`;
-  
+
   return React.cloneElement(React.Children.only(children), {
     className: nextClassName,
+    style: {
+      ...prevStyle.current,
+      ...nextStyle,
+    }
   });
 };
 
