@@ -44,7 +44,7 @@ type waitForTransitionStartCallback = (...args: any[]) => any;
 const durationDefaults = 200;
 const delayDefaults = 0;
 
-const Transition: React.FC<TransitionProps> = (props) => {
+const Transition: React.FC<TransitionProps> = (props: TransitionProps) => {
   const {
     name = '',
     duration = durationDefaults,
