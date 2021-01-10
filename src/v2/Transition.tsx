@@ -165,6 +165,11 @@ const Transition: React.FC<TransitionProps> = (props) => {
     } else {
       // 触发leaveed的钩子，只有在真正离开的状态才触发，unmounted -> leaveed状态时不触发
       onLeaveed()
+      // Observer注入的监听事件
+      const { _onLeaveed } = props as any;
+      if (_onLeaveed) {
+        _onLeaveed();
+      }
       // 如果开关为关。并且unmount设置为true，需要将状态设置为STATUS['UNMOUNTED']
       if (unmount) {
         setStatus(STATUS['UNMOUNTED']);
