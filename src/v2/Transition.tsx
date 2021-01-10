@@ -91,7 +91,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
     }
   });
   // 间隔渲染，主要用在一组动画中，默认为0
-  const [interval, setInterval] = useState<number>(0);
+  const [interval, setIntervalTime] = useState<number>(0);
   // 是否为初次渲染
   const firstMount = useRef(true);
   // 最初元素的classNames
@@ -276,8 +276,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
         animation,
         delay,
       } = animations[currentId];
-      console.log(animations)
-      setInterval(delay);
+      setIntervalTime(delay);
       setAnimation(animation);
     }
   }, [animations]);
@@ -334,7 +333,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
     style: {
       ...prevStyle.current,
       ...nextStyle,
-    }
+    },
   });
 };
 
