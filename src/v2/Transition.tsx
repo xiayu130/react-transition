@@ -51,6 +51,7 @@ export interface TransitionProps {
   // 开始display后，LEAVEED时会添加display: none的style
   leaveDisplayNone?: boolean;
   children: React.ReactElement;
+  appear?: boolean;
 };
 
 type waitForTransitionStartCallback = (...args: any[]) => any;
@@ -71,6 +72,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
     onLeaveed = noop,
     onLeaveing = noop,
     leaveDisplayNone = false,
+    appear = false,
     children,
   } = props;
 
@@ -79,7 +81,11 @@ const Transition: React.FC<TransitionProps> = (props) => {
   // 动画的状态
   const [status, setStatus] = useState<STATUS>(() => {
     if (_animation) {
-      return STATUS['LEAVEED'];
+      if (appear) {
+        return STATUS['ENTERED'];
+      } else {
+        return STATUS['LEAVEED'];
+      }
     } else {
       if (unmount) {
         return STATUS['UNMOUNTED'];
