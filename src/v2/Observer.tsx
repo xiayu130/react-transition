@@ -6,23 +6,19 @@ import {
 } from 'react';
 import {
   TransitionProps,
-  STATUS,
 } from './Transition';
 
-interface TransitionQueue {
+interface ObserverProps {
   wrap?: string;
   wrapClass?: string;
+  children?: any;
 }
 
 export type ChildrenMap = {
   [key: string]: React.ReactNode
 };
 
-export const ObserverContext = React.createContext({} as {
-  _initStatus: STATUS,
-});
-
-const Observer: React.FC<TransitionQueue> = (props) => {
+const Observer: React.FC<ObserverProps> = (props) => {
 
   const {
     children: _children,
@@ -94,7 +90,7 @@ const Observer: React.FC<TransitionQueue> = (props) => {
     return getMap(children, (child) => {
       return React.cloneElement(child as React.ReactElement, {
         animation: true,
-        onLeave: () => {
+        _onLeaveed: () => {
           const key = (child as React.ReactElement).key || '';
           handleLeave(key);
         },
@@ -122,7 +118,7 @@ const Observer: React.FC<TransitionQueue> = (props) => {
       if (isNew) {
         children[key] = React.cloneElement(child, {
           animation: true,
-          onLeave: () => {
+          _onLeaveed: () => {
             const key = (child as React.ReactElement).key || '';
             handleLeave(key);
           },
@@ -134,7 +130,7 @@ const Observer: React.FC<TransitionQueue> = (props) => {
       } else if (isNeverChange) {
         children[key] = React.cloneElement(child, {
           animation: prevProps.animation,
-          onLeave: () => {
+          _onLeaveed: () => {
             const key = (child as React.ReactElement).key || '';
             handleLeave(key);
           },
@@ -165,29 +161,25 @@ const Observer: React.FC<TransitionQueue> = (props) => {
     firstMount.current = false;
   }, [_children]);
 
-  const childNode = Object.values(children);
+  const ChildNode = Object.values(children);
 
   if (wrap) {
-    const wrapChildNode = React.createElement(wrap, {
+    const WrapChildNode = React.createElement(wrap, {
       className: wrapClass,
-    }, childNode);
+    }, ChildNode);
 
     return (
-      <ObserverContext.Provider value={{
-        _initStatus: STATUS['UNMOUNTED'],
-      }}>
-        { wrapChildNode }
-      </ObserverContext.Provider>
-    );
+      <>
+        { WrapChildNode }
+      </>
+    )
   }
 
   return (
-    <ObserverContext.Provider value={{
-      _initStatus: STATUS['UNMOUNTED'],
-    }}>
-      { childNode }
-    </ObserverContext.Provider>
-  );
+    <>
+      { ChildNode }
+    </>
+  )
 }
 
 export default Observer;
