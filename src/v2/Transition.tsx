@@ -74,8 +74,6 @@ const Transition: React.FC<TransitionProps> = (props) => {
     children,
   } = props;
 
-  // class的前缀
-  const [_name, setName] = useState<string>(name);
   // 动画的开关
   const [_animation, setAnimation] = useState<boolean>(animation);
   // 动画的状态
@@ -248,6 +246,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
     timers.current.forEach((timer) => {
       clearTimeout(timer);
     });
+    timers.current.clear();
     switch (status) {
       case STATUS['UNMOUNTED']:
         handleUnmounted();
@@ -285,31 +284,26 @@ const Transition: React.FC<TransitionProps> = (props) => {
     setAnimation(animation);
   }, [animation]);
 
-  useEffect(() => {
-    setName(name);
-  }, [name]);
 
   useEffect(() => {
     if (collection) {
       collection.push(id.current);
     }
-    if (!name && prefix) {
-      setName(prefix);
-    }
   }, []);
 
   const className = useMemo(() => {
+    const classPrefix = prefix ? prefix : name;
     switch (status) {
       case STATUS['LEAVEED']:
-        return `${_name}-leaveed`;
+        return `${classPrefix}-leaveed`;
       case STATUS['LEAVEING']:
-        return `${_name}-leaveing`;
+        return `${classPrefix}-leaveing`;
       case STATUS['ENTERED']:
-        return `${_name}-entered`;
+        return `${classPrefix}-entered`;
       case STATUS['ENTERING']:
-        return `${_name}-entering`;
+        return `${classPrefix}-entering`;
     }
-  }, [status, _name]);
+  }, [status, prefix, name]);
 
   const nextStyle = useMemo(() => {
     if (status === STATUS['LEAVEED'] && leaveDisplayNone && !_animation) {
