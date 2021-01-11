@@ -8,7 +8,7 @@ import {
   ChildrenMap
 } from './Observer';
 import {
-  TransitionFLIP
+  TransitionFLIPProps
 } from './TransitionFLIP';
 
 type Rect = DOMRect | ClientRect;
@@ -18,7 +18,7 @@ interface CatchStylesValue {
   styles: CSSStyleDeclaration,
 }
 
-interface FLIPSContext {
+type FLIPSContextType = {
   catchStyles: CatchStylesMap;
   catchAnimations: CatchAnimations;
   animationOption: KeyframeAnimationOptions;
@@ -27,13 +27,13 @@ interface FLIPSContext {
 type CatchStylesMap = Map<string | number, CatchStylesValue>;
 type CatchAnimations = Map<string | number, Animation>;
 
-export const FLIPSContext = React.createContext<FLIPSContext>({
+export const FLIPSContext = React.createContext<FLIPSContextType>({
   catchStyles: new Map(),
   catchAnimations: new Map(),
   animationOption: {},
 });
 
-interface TransitionFLIPS {
+interface TransitionFLIPSProps {
   delay?: number;
   duration?: number;
   inOutDuration?: number;
@@ -44,7 +44,7 @@ interface TransitionFLIPS {
   name?: string;
 }
 
-const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
+const TransitionFLIPS: React.FC<TransitionFLIPSProps> = (props) => {
 
   const {
     delay = 0,
@@ -157,7 +157,7 @@ const TransitionFLIPS: React.FC<TransitionFLIPS> = (props) => {
       const isNew = hasKeyByNew && !hasKeyByPrev;
       const isDelete = !hasKeyByNew && hasKeyByPrev;
       const isNeverChange = hasKeyByNew && hasKeyByPrev;
-      const prevProps = ((prevChildrenMap[key] as React.ReactElement)?.props as TransitionFLIP);
+      const prevProps = ((prevChildrenMap[key] as React.ReactElement)?.props as TransitionFLIPProps);
       if (isNew) {
         children[key] = React.cloneElement(child, {
           _name: name,

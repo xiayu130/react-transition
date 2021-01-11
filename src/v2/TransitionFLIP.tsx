@@ -16,7 +16,7 @@ import getParent from '../util/getParent';
 import getStyles from '../util/getStyles';
 import createAnimation from '../util/createAnimation';
 
-export interface TransitionFLIP {
+export interface TransitionFLIPProps {
   children: React.ReactElement;
   flipId: string | number;
   _onLeave?: () => void;
@@ -25,7 +25,7 @@ export interface TransitionFLIP {
   _duration?: number;
 }
 
-const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
+const TransitionFLIP: React.FC<TransitionFLIPProps> = (props) => {
 
   const {
     _onLeave: onLeave,
@@ -45,6 +45,7 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
   const selfRef = useRef<HTMLElement>(null);
   const firstMount = useRef<boolean>(true);
   const FLIPID = useRef(flipId);
+  const isInOutTransition = useRef(false);
 
   const force = () => {
     const flipEle = selfRef.current;
@@ -135,12 +136,14 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
             backgroundColor: cbc,
           },
         ];
-        const animationOptions: KeyframeAnimationOptions = animationOption;
-        const animation = createAnimation(flipEle, animationKeyframes, animationOptions);
-        catchAnimations.set(FLIPID.current, animation);
-        animation.play();
-        // _isPlayed 标示符，解决多次force的问题
-        (animation as any)._isPlayed = true;
+        if (!isInOutTransition.current) {
+          const animationOptions: KeyframeAnimationOptions = animationOption;
+          const animation = createAnimation(flipEle, animationKeyframes, animationOptions);
+          catchAnimations.set(FLIPID.current, animation);
+          animation.play();
+          // _isPlayed 标示符，解决多次force的问题
+          (animation as any)._isPlayed = true;
+        }
       }
     }
   });
@@ -152,8 +155,18 @@ const TransitionFLIP: React.FC<TransitionFLIP> = (props) => {
   return (
     <Transition
       animation={animation}
-      onLeaveed={onLeave}
+      onEntering={() => {
+        isInOutTransition.current = true
+      }}
+      onLeaveing={() => {
+        isInOutTransition.current = true
+      }}
+      onLeaveed={() => {
+        isInOutTransition.current = false
+        onLeave && onLeave()
+      }}
       onEntered={() => {
+        isInOutTransition.current = false
         // 入场完成后强制更新一次缓存
         const flipEle = selfRef.current;
         if (flipEle) {
