@@ -58,19 +58,31 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       const parent = getParent(flipEle);
       const nextRect = relativeRect(parent, flipEle);
       const prevRect = prevRectRef.current;
-      const x = prevRect.x - nextRect.x;
-      const y = prevRect.y - nextRect.y;
+      const x = nextRect.x - prevRect.x;
+      const y = nextRect.y - prevRect.y;
       // 没有变化就不进行处理
       if (x === 0 && y === 0) {
         return;
       }
       const s = flipEle.style;
-      s.transform = s.webkitTransform = `translate(${x}px,${y}px)`;
       s.transitionDuration = '0s';
+      s.transform = s.webkitTransform = `translate(${x}px,${y}px)`;
       // 强制重绘
       reflow();
-      s.transition = `${duration}ms`;
-      s.transform = s.webkitTransform = s.transitionDuration = '';
+      // Vue实现，是添加了一个move类，move类包含了transition的内容
+      // 我在这里直接添加transition属性，并在
+      s.transition = `all ${duration}ms ${easing}`;
+      s.transform = s.webkitTransform = '';
+      // 监听transition事件
+      flipEle.addEventListener('transitionend', function cb (e) {
+        if (e && e.target !== flipEle) {
+          return
+        }
+        if (!e || /transform$/.test(e.propertyName)) {
+          flipEle.removeEventListener('transitionend', cb);
+          s.transition = '';
+        }
+      });
     }
   });
 
