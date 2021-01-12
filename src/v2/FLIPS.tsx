@@ -25,7 +25,7 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
     easing = 'ease-in',
     wrap = 'div',
     wrapClass = '',
-    name = '',
+    name = 'r',
     children: _children,
   } = props;
 
