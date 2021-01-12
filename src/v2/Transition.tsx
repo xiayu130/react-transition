@@ -326,7 +326,7 @@ const Transition: React.FC<TransitionProps> = (props) => {
 
   const nextClassName = prevClassNames.current ?
     `${className} ${prevClassNames.current}`
-    : `${prevClassNames.current}`;
+    : `${className}`;
 
   return React.cloneElement(React.Children.only(children), {
     className: nextClassName,
