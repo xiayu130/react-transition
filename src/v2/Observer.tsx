@@ -172,14 +172,14 @@ const Observer: React.FC<ObserverProps> = (props) => {
       <>
         { WrapChildNode }
       </>
-    )
+    );
   }
 
   return (
     <>
       { ChildNode }
     </>
-  )
+  );
 }
 
 export default Observer;
