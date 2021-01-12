@@ -1,10 +1,11 @@
-// https://github.com/vuejs/vue/blob/b51430f598b354ed60851bb62885539bd25de3d8/src/platforms/web/runtime/components/transition-group.js
 import * as React from 'react';
 import {
   useRef,
   useLayoutEffect,
 } from 'react';
 import Transition from './Transition';
+import getRect from './util/getReact';
+import getParent from './util/getParent';
 
 export interface FLIPProps {
   children: React.ReactElement;
@@ -24,7 +25,20 @@ const FLIP: React.FC<FLIPProps> = (props) => {
     _easing: easing, // flip动画的缓冲函数
   } = props as any;
 
-  const selfRef = useRef<HTMLElement>(null);
+  const selfRef = useRef<HTMLElement>();
+  const prevRect = useRef<DOMRect>();
+
+  const force = () => {
+    const flipEle = selfRef.current;
+    if (flipEle) {
+      const parent = getParent(flipEle);
+      const parentRect = getRect(parent);
+      const rect = getRect(flipEle);
+      rect.x = parentRect.x - rect.x;
+      rect.y = parentRect.y - rect.y;
+      prevRect.current = rect;
+    }
+  };
 
   useLayoutEffect(() => {
     const flipEle = selfRef.current
@@ -35,6 +49,8 @@ const FLIP: React.FC<FLIPProps> = (props) => {
   const child = React.cloneElement(React.Children.only(children), {
     ref: selfRef
   });
+
+  force();
 
   return (
     <Transition
