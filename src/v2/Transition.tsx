@@ -61,7 +61,7 @@ const delayDefaults = 0;
 
 const Transition: React.FC<TransitionProps> = (props) => {
   const {
-    name = '',
+    name = 'r',
     duration = durationDefaults,
     delay = delayDefaults,
     animation = false,
