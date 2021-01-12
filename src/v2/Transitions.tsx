@@ -24,14 +24,14 @@ export const TransitionsContext = React.createContext<{
 }>({
   animations: {},
   collection: [],
-  prefix: '',
+  prefix: 'r',
 });
 
 const Transitions: React.FC<TransitionsProps> = (props) => {
   const {
     masterSwitch = false,
     interval = 200,
-    prefix = '',
+    prefix = 'r',
     children,
   } = props;
 
