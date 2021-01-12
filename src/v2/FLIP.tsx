@@ -4,8 +4,8 @@ import {
   useLayoutEffect,
 } from 'react';
 import Transition from './Transition';
-import getRect from './util/getReact';
-import getParent from './util/getParent';
+import getRect from '../util/getReact';
+import getParent from '../util/getParent';
 
 export interface FLIPProps {
   children: React.ReactElement;
@@ -26,23 +26,51 @@ const FLIP: React.FC<FLIPProps> = (props) => {
   } = props as any;
 
   const selfRef = useRef<HTMLElement>();
-  const prevRect = useRef<DOMRect>();
+  const prevRectRef = useRef<DOMRect>();
+  const _reflowRef = useRef<number>();
+
+  // 强制回流
+  const reflow = () => {
+    _reflowRef.current = document.body.offsetHeight;
+  };
+
+  // 获取相对的rect
+  const relativeRect = (parent: HTMLElement, child: HTMLElement): DOMRect => {
+    const parentRect = getRect(parent);
+    const rect = getRect(child);
+    rect.x = parentRect.x - rect.x;
+    rect.y = parentRect.y - rect.y;
+    return rect;
+  };
 
   const force = () => {
     const flipEle = selfRef.current;
     if (flipEle) {
       const parent = getParent(flipEle);
-      const parentRect = getRect(parent);
-      const rect = getRect(flipEle);
-      rect.x = parentRect.x - rect.x;
-      rect.y = parentRect.y - rect.y;
-      prevRect.current = rect;
+      const rect = relativeRect(parent, flipEle);
+      prevRectRef.current = rect;
     }
   };
 
   useLayoutEffect(() => {
     const flipEle = selfRef.current
-    if (flipEle && animation) {
+    if (flipEle && prevRectRef.current) {
+      const parent = getParent(flipEle);
+      const nextRect = relativeRect(parent, flipEle);
+      const prevRect = prevRectRef.current;
+      const x = prevRect.x - nextRect.x;
+      const y = prevRect.y - nextRect.y;
+      // 没有变化就不进行处理
+      if (x === 0 && y === 0) {
+        return;
+      }
+      const s = flipEle.style;
+      s.transform = s.webkitTransform = `translate(${x}px,${y}px)`;
+      s.transitionDuration = '0s';
+      // 强制重绘
+      reflow();
+      s.transition = `${duration}ms`;
+      s.transform = s.webkitTransform = s.transitionDuration = '';
     }
   });
 
