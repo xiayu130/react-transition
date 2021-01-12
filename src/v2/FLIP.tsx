@@ -49,6 +49,7 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       const parent = getParent(flipEle);
       const rect = relativeRect(parent, flipEle);
       prevRectRef.current = rect;
+      // 这里可以增加一个停止css动画，并保存当前动画的位置（Vue这块没有做处理，可能并不重要）
     }
   };
 
@@ -70,7 +71,7 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       // 强制重绘
       reflow();
       // Vue实现，是添加了一个move类，move类包含了transition的内容
-      // 我在这里直接添加transition属性，并在
+      // 我在这里直接添加transition属性，并在transitionend事件时，删除transition属性
       s.transition = `all ${duration}ms ${easing}`;
       s.transform = s.webkitTransform = '';
       // 监听transition事件
