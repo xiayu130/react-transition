@@ -4,8 +4,14 @@ import {
   useLayoutEffect,
 } from 'react';
 import Transition from './Transition';
-import getRect from '../util/getReact';
-import getParent from '../util/getParent';
+
+const getRect = (ele: HTMLElement): DOMRect => {
+  return ele.getBoundingClientRect();
+};
+
+const getParent = (el: HTMLElement): HTMLElement => {
+  return el.parentNode as HTMLElement;
+};
 
 export interface FLIPProps {
   children: React.ReactElement;
