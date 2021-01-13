@@ -9,9 +9,7 @@ import {
 } from './Observer';
 
 interface FLIPSProps {
-  duration?: number; // flip动画的过渡时间
   inOutDuration?: number; // 非flip动画的过渡时间，比如离开和进入的过渡时间
-  easing?: string; // flip动画的缓动函数
   wrap?: string | false; // 是否添加一层包裹
   wrapClass?: string; // 包裹的class名称
   name?: string; // 添加类名的前缀
@@ -20,9 +18,7 @@ interface FLIPSProps {
 const FLIPS: React.FC<FLIPSProps> = (props) => {
 
   const {
-    duration = 200,
     inOutDuration = 200,
-    easing = 'ease-in',
     wrap = 'div',
     wrapClass = '',
     name = 'r',
@@ -102,8 +98,6 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
     return getMap(children, (child) => {
       return React.cloneElement(child as React.ReactElement, {
         _inOutDuration: inOutDuration,
-        _easing: easing,
-        _duration: duration,
         _name: name,
         _animation: true,
         _onLeave: () => {
@@ -135,8 +129,6 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
         children[key] = React.cloneElement(child, {
           _name: name,
           _inOutDuration: inOutDuration,
-          _easing: easing,
-          _duration: duration,
           _animation: true,
           _onLeave: () => {
             const key = (child as React.ReactElement).key || '';
@@ -151,8 +143,6 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
         children[key] = React.cloneElement(child, {
           _animation: prevProps._animation,
           _inOutDuration: prevProps._inOutDuration,
-          _easing: prevProps._easing,
-          _duration: prevProps._duration,
           _name: prevProps._name,
           _onLeave: () => {
             const key = (child as React.ReactElement).key || '';
