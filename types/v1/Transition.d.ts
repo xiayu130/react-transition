@@ -8,10 +8,10 @@ interface TransitionDisplay {
     leave: React.CSSProperties;
 }
 export interface TransitionStyles {
-    enter?: React.CSSProperties;
-    entering?: React.CSSProperties;
-    leave?: React.CSSProperties;
-    leaveing?: React.CSSProperties;
+    enter: React.CSSProperties;
+    entering: React.CSSProperties;
+    leave: React.CSSProperties;
+    leaveing: React.CSSProperties;
 }
 export interface TransitionProps {
     display?: boolean | TransitionDisplay;
@@ -27,6 +27,7 @@ export interface TransitionProps {
     transitionStyles?: TransitionStyles;
     onLeave?: () => void;
     onEnter?: () => void;
+    onTransitionEnd?: () => void;
 }
 export declare enum STATUS {
     UNMOUNTED = "unmounted",
