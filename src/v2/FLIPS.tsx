@@ -12,7 +12,7 @@ interface FLIPSProps {
   duration?: number; // flip动画的过渡时间
   inOutDuration?: number; // 非flip动画的过渡时间，比如离开和进入的过渡时间
   easing?: string; // flip动画的缓动函数
-  wrap?: string; // 是否添加一层包裹
+  wrap?: string | false; // 是否添加一层包裹
   wrapClass?: string; // 包裹的class名称
   name?: string; // 添加类名的前缀
 }
