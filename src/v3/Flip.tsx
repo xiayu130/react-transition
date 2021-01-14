@@ -32,8 +32,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
   const selfRef = useRef<HTMLElement>();
   const prevRectRef = useRef<DOMRect>();
   const _reflowRef = useRef<number>();
-  const _runing = useRef<boolean>(false);
-
   // 强制重绘
   const reflow = () => {
     _reflowRef.current = document.body.offsetHeight;
@@ -82,10 +80,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       const parent = getParent(flipEle);
       const rect = relativeRect(parent, flipEle);
       prevRectRef.current = rect;
-      // 这里可以增加一个停止css动画，并保存当前动画的位置（Vue这块没有做处理，可能并不重要）
-      if (_runing.current) {
-        // finish();
-      }
     }
   };
 
@@ -110,7 +104,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       // 添加move类
       addClass(flipEle, moveClass);
       s.transform = s.webkitTransform = s.transitionDuration = '';
-      _runing.current = true;
       // 监听transition事件
       flipEle.addEventListener('transitionend', function cb (e) {
         if (e && e.target !== flipEle) {
@@ -118,7 +111,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
         }
         if (!e || /transform$/.test(e.propertyName)) {
           flipEle.removeEventListener('transitionend', cb);
-          _runing.current = false;
           // 删除move类
           removeClass(flipEle, moveClass);
         }
@@ -138,6 +130,7 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       animation={animation}
       onLeaveed={onLeaveed}
       duration={inOutDuration}
+      unmount
     >
       { child }
     </Transition>
