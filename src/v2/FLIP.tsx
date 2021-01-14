@@ -138,6 +138,7 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       animation={animation}
       onLeaveed={onLeaveed}
       duration={inOutDuration}
+      unmount
     >
       { child }
     </Transition>
