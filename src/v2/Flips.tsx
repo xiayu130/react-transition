@@ -8,14 +8,20 @@ import {
   ChildrenMap
 } from './Observer';
 
-interface FLIPSProps {
+interface FlipsProps {
   inOutDuration?: number; // 非flip动画的过渡时间，比如离开和进入的过渡时间
   wrap?: string | false; // 是否添加一层包裹
   wrapClass?: string; // 包裹的class名称
   name?: string; // 添加类名的前缀
 }
 
-const FLIPS: React.FC<FLIPSProps> = (props) => {
+export const FlipsContext = React.createContext<{
+  forceUpdate: any;
+}>({
+  forceUpdate: null
+});
+
+const Flips: React.FC<FlipsProps> = (props) => {
 
   const {
     inOutDuration = 200,
@@ -175,17 +181,21 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
     }, ChildNode);
 
     return (
-      <>
+      <FlipsContext.Provider value={{
+        forceUpdate: children
+      }}>
         { WrapChildNode }
-      </>
+      </FlipsContext.Provider>
     );
   }
 
   return (
-    <>
+    <FlipsContext.Provider value={{
+      forceUpdate: children
+    }}>
       { ChildNode }
-    </>
+    </FlipsContext.Provider>
   );
 }
 
-export default FLIPS;
+export default Flips;

@@ -2,8 +2,10 @@ import * as React from 'react';
 import {
   useRef,
   useLayoutEffect,
+  useContext,
 } from 'react';
 import Transition from './Transition';
+import { FlipsContext } from './Flips';
 
 const getRect = (ele: HTMLElement): DOMRect => {
   return ele.getBoundingClientRect();
@@ -13,11 +15,11 @@ const getParent = (el: HTMLElement): HTMLElement => {
   return el.parentNode as HTMLElement;
 };
 
-export interface FLIPProps {
+export interface FlipProps {
   children: React.ReactElement;
 }
 
-const FLIP: React.FC<FLIPProps> = (props) => {
+const Flip: React.FC<FlipProps> = (props) => {
   const {
     children,
   } = props;
@@ -32,7 +34,9 @@ const FLIP: React.FC<FLIPProps> = (props) => {
   const selfRef = useRef<HTMLElement>();
   const prevRectRef = useRef<DOMRect>();
   const _reflowRef = useRef<number>();
-  const _runing = useRef<boolean>(false);
+  // eslint-disable-next-line
+  // @ts-ignore
+  const { forceUpdate } = useContext(FlipsContext);
 
   // 强制重绘
   const reflow = () => {
@@ -46,17 +50,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
     rect.x = parentRect.x - rect.x;
     rect.y = parentRect.y - rect.y;
     return rect;
-  };
-
-  // 终止transition过渡，并保存当前的位置
-  const finish = () => {
-    const flipEle = selfRef.current;
-    if (flipEle) {
-      const s = flipEle.style;
-      const computedStyle = window.getComputedStyle(flipEle);
-      s.transitionDuration = '0s';
-      s.transform = s.webkitTransform = computedStyle.transform;
-    }
   };
 
   const addClass = (ele: HTMLElement, className: string): void => {
@@ -82,10 +75,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       const parent = getParent(flipEle);
       const rect = relativeRect(parent, flipEle);
       prevRectRef.current = rect;
-      // 这里可以增加一个停止css动画，并保存当前动画的位置（Vue这块没有做处理，可能并不重要）
-      if (_runing.current) {
-        // finish();
-      }
     }
   };
 
@@ -110,7 +99,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
       // 添加move类
       addClass(flipEle, moveClass);
       s.transform = s.webkitTransform = s.transitionDuration = '';
-      _runing.current = true;
       // 监听transition事件
       flipEle.addEventListener('transitionend', function cb (e) {
         if (e && e.target !== flipEle) {
@@ -118,7 +106,6 @@ const FLIP: React.FC<FLIPProps> = (props) => {
         }
         if (!e || /transform$/.test(e.propertyName)) {
           flipEle.removeEventListener('transitionend', cb);
-          _runing.current = false;
           // 删除move类
           removeClass(flipEle, moveClass);
         }
@@ -145,4 +132,4 @@ const FLIP: React.FC<FLIPProps> = (props) => {
   );
 };
 
-export default FLIP;
+export default Flip;
