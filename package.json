@@ -1,6 +1,6 @@
 {
   "name": "react-flip-transition",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "React flip animation library",
   "main": "dist/main.js",
   "typings": "types/index.d.ts",

@@ -100,7 +100,7 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
         _inOutDuration: inOutDuration,
         _name: name,
         _animation: true,
-        _onLeave: () => {
+        _onLeaveed: () => {
           const key = (child as React.ReactElement).key || '';
           handleLeave(key);
         },
@@ -130,7 +130,7 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
           _name: name,
           _inOutDuration: inOutDuration,
           _animation: true,
-          _onLeave: () => {
+          _onLeaveed: () => {
             const key = (child as React.ReactElement).key || '';
             handleLeave(key);
           },
@@ -144,7 +144,7 @@ const FLIPS: React.FC<FLIPSProps> = (props) => {
           _animation: prevProps._animation,
           _inOutDuration: prevProps._inOutDuration,
           _name: prevProps._name,
-          _onLeave: () => {
+          _onLeaveed: () => {
             const key = (child as React.ReactElement).key || '';
             handleLeave(key);
           },
