@@ -1,3 +1,4 @@
+// Thank you https://github.com/reactjs/react-transition-group/blob/master/src/utils/ChildMapping.js
 import React, {
   useEffect,
   useState,
